@@ -215,6 +215,16 @@ export function computeWinProbability(
  * Simulate a single matchup outcome given a win probability for team A.
  * Returns true if team A wins, false if team B wins.
  */
-export function simulateMatchup(probAWins: number): boolean {
+/**
+ * Simulate a single matchup outcome. luckFactor (0-0.20) injects noise
+ * into the probability before the coin flip, making results less deterministic.
+ */
+export function simulateMatchup(probAWins: number, luckFactor: number = 0): boolean {
+  if (luckFactor > 0) {
+    // Shift probability toward 50% by luckFactor amount, then add random noise
+    const noise = (Math.random() - 0.5) * luckFactor;
+    const adjusted = probAWins * (1 - luckFactor) + 0.5 * luckFactor + noise;
+    return Math.random() < Math.max(0.02, Math.min(0.98, adjusted));
+  }
   return Math.random() < probAWins;
 }

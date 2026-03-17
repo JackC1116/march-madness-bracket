@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type {
   BracketState, Team, MatchupNarrative, Matchup, Round,
   ModelWeights, StructuredBias, ClaudeBiasAdjustment,
-  MatchupOdds, HistoricalTrends,
+  MatchupOdds, HistoricalTrends, AdvancedModelSettings,
 } from '../types';
 import { computeAllCPR } from '../engine/composite-score';
 import { computeWinProbability } from '../engine/matchup-sim';
@@ -17,6 +17,7 @@ interface GuidedPicksProps {
   claudeBiases?: ClaudeBiasAdjustment[];
   odds?: MatchupOdds[];
   historicalTrends?: HistoricalTrends;
+  advancedSettings?: AdvancedModelSettings;
   onPick: (matchupId: string, winnerId: string) => void;
   onNext: () => void;
   onPrev: () => void;
@@ -264,6 +265,7 @@ export default function GuidedPicks({
   claudeBiases,
   odds,
   historicalTrends,
+  advancedSettings,
   onPick,
   onNext,
   onPrev,
@@ -291,8 +293,9 @@ export default function GuidedPicks({
       claudeBiases,
       odds,
       historicalTrends,
+      advancedSettings,
     });
-  }, [teams, weights, biases, claudeBiases, odds, historicalTrends]);
+  }, [teams, weights, biases, claudeBiases, odds, historicalTrends, advancedSettings]);
 
   const totalGames = orderedMatchups.length;
   const currentMatchup = orderedMatchups[currentIndex] || null;
@@ -316,8 +319,9 @@ export default function GuidedPicks({
       cprB,
       currentMatchup.round as Round,
       historicalTrends,
+      advancedSettings,
     );
-  }, [teamA, teamB, currentMatchup, allCPR, historicalTrends]);
+  }, [teamA, teamB, currentMatchup, allCPR, historicalTrends, advancedSettings]);
 
   const winProbB = 1 - winProbA;
 

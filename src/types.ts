@@ -270,6 +270,7 @@ export interface PickHistoryEntry {
 export interface AppState {
   mode: AppMode;
   weights: ModelWeights;
+  luckFactor: number;  // 0-0.20: random noise injected into matchup simulations
   upsetAppetite: UpsetAppetite;
   biases: StructuredBias[];
   claudeBiases: ClaudeBiasAdjustment[];

@@ -7,7 +7,7 @@ import { HISTORICAL_TRENDS } from '../data/historical-trends';
 
 export function useSimulation() {
   const { state, dispatch } = useAppState();
-  const { weights, biases, claudeBiases, upsetAppetite, bracket, simulationResults, isSimulating, simulationIterations } =
+  const { weights, biases, claudeBiases, upsetAppetite, bracket, simulationResults, isSimulating, simulationIterations, advancedSettings, luckFactor } =
     state;
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -36,6 +36,8 @@ export function useSimulation() {
             setSimulationProgress(completed / total);
           }
         },
+        advancedSettings,
+        luckFactor,
       );
 
       if (!abortRef.current) {
@@ -49,7 +51,7 @@ export function useSimulation() {
         dispatch({ type: 'SET_IS_SIMULATING', payload: false });
       }
     }
-  }, [bracket, weights, biases, claudeBiases, simulationIterations, dispatch]);
+  }, [bracket, weights, biases, claudeBiases, simulationIterations, advancedSettings, luckFactor, dispatch]);
 
   // Auto-run simulation debounced at 500ms
   useEffect(() => {
@@ -68,7 +70,7 @@ export function useSimulation() {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [weights, biases, claudeBiases, upsetAppetite, bracket, simulationIterations, runSimulation]);
+  }, [weights, biases, claudeBiases, upsetAppetite, bracket, simulationIterations, advancedSettings, luckFactor, runSimulation]);
 
   useEffect(() => {
     return () => {

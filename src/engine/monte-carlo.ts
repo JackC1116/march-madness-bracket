@@ -52,7 +52,8 @@ interface BracketSlot {
  */
 function resolveFirstFour(
   teams: Team[],
-  cprMap: Record<string, number>
+  cprMap: Record<string, number>,
+  luckFactor: number = 0,
 ): Team[] {
   const firstFourTeams = teams.filter((t) => t.isFirstFour);
   const regularTeams = teams.filter((t) => !t.isFirstFour);
@@ -72,7 +73,7 @@ function resolveFirstFour(
       processed.add(opponent.id);
 
       const probA = 0.5 + (cprMap[team.id] - cprMap[opponent.id]) * 0.5;
-      const aWins = simulateMatchup(Math.max(0.02, Math.min(0.98, probA)));
+      const aWins = simulateMatchup(Math.max(0.02, Math.min(0.98, probA)), luckFactor);
       resolved.push(aWins ? team : opponent);
     } else {
       // No opponent found — include the team as-is
@@ -124,7 +125,8 @@ function simulateOnce(
   _cprMap: Record<string, number>,
   regionBrackets: Record<Region, BracketSlot[][]>,
   historicalTrends: HistoricalTrends | undefined,
-  advancedSettings?: AdvancedModelSettings
+  advancedSettings?: AdvancedModelSettings,
+  luckFactor: number = 0,
 ): Record<string, number> {
   const roundReached: Record<string, number> = {};
 
@@ -150,7 +152,7 @@ function simulateOnce(
         slotA.cpr, slotB.cpr,
         'R64', historicalTrends, advancedSettings
       );
-      const aWins = simulateMatchup(prob);
+      const aWins = simulateMatchup(prob, luckFactor);
       const winner = aWins ? slotA : slotB;
       roundReached[winner.team.id] = 1; // advances past R64
       currentRound.push(winner);
@@ -170,9 +172,9 @@ function simulateOnce(
         const prob = computeWinProbability(
           slotA.team, slotB.team,
           slotA.cpr, slotB.cpr,
-          roundNames[ri], historicalTrends
+          roundNames[ri], historicalTrends, advancedSettings
         );
-        const aWins = simulateMatchup(prob);
+        const aWins = simulateMatchup(prob, luckFactor);
         const winner = aWins ? slotA : slotB;
         roundReached[winner.team.id] = ri + 2; // R32=1, S16=2, E8=3
         nextRound.push(winner);
@@ -200,9 +202,9 @@ function simulateOnce(
       const prob = computeWinProbability(
         slotA.team, slotB.team,
         slotA.cpr, slotB.cpr,
-        'Final Four', historicalTrends
+        'Final Four', historicalTrends, advancedSettings
       );
-      const aWins = simulateMatchup(prob);
+      const aWins = simulateMatchup(prob, luckFactor);
       const winner = aWins ? slotA : slotB;
       roundReached[winner.team.id] = 5; // Championship game
       finalists.push(winner);
@@ -220,9 +222,9 @@ function simulateOnce(
     const prob = computeWinProbability(
       finalists[0].team, finalists[1].team,
       finalists[0].cpr, finalists[1].cpr,
-      'Championship', historicalTrends
+      'Championship', historicalTrends, advancedSettings
     );
-    const aWins = simulateMatchup(prob);
+    const aWins = simulateMatchup(prob, luckFactor);
     const champion = aWins ? finalists[0] : finalists[1];
     roundReached[champion.team.id] = 6; // Champion
   } else if (finalists.length === 1) {
@@ -271,6 +273,8 @@ export async function runSimulation(
   iterations: number = 10000,
   claudeBiases?: ClaudeBiasAdjustment[],
   onProgress?: (completed: number, total: number) => void,
+  advancedSettings?: AdvancedModelSettings,
+  luckFactor: number = 0,
 ): Promise<SimulationResults> {
   // Compute CPR for all teams once
   const cprMap = computeAllCPR({
@@ -280,6 +284,7 @@ export async function runSimulation(
     claudeBiases,
     odds,
     historicalTrends,
+    advancedSettings,
   });
 
   // Index teams by ID
@@ -311,7 +316,7 @@ export async function runSimulation(
     }
 
     // Resolve First Four for this iteration
-    const resolved = resolveFirstFour(teams, cprMap);
+    const resolved = resolveFirstFour(teams, cprMap, luckFactor);
 
     // Group by region
     const byRegion: Record<Region, Team[]> = {
@@ -330,7 +335,7 @@ export async function runSimulation(
     }
 
     // Simulate one full tournament
-    const result = simulateOnce(teamsById, cprMap, regionBrackets, historicalTrends);
+    const result = simulateOnce(teamsById, cprMap, regionBrackets, historicalTrends, advancedSettings, luckFactor);
 
     // Accumulate results
     for (const [teamId, roundIdx] of Object.entries(result)) {

@@ -7,6 +7,8 @@ interface WeightSlidersProps {
   onChange: (weights: ModelWeights) => void;
   iterations?: number;
   onIterationsChange?: (n: number) => void;
+  luckFactor?: number;
+  onLuckFactorChange?: (n: number) => void;
 }
 
 const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string; tooltip: string }[] = [
@@ -19,7 +21,7 @@ const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string
   { key: 'experience', label: 'Experience', description: 'Tournament experience', tooltip: 'Factors like returning tournament minutes, coach\'s NCAA tournament record, and program pedigree. Teams with March experience tend to perform closer to expectations.' },
 ];
 
-export default function WeightSliders({ weights, onChange, iterations, onIterationsChange }: WeightSlidersProps) {
+export default function WeightSliders({ weights, onChange, iterations, onIterationsChange, luckFactor, onLuckFactorChange }: WeightSlidersProps) {
   const handleSliderChange = useCallback(
     (changedKey: keyof ModelWeights, newValue: number) => {
       const oldValue = weights[changedKey];
@@ -221,6 +223,40 @@ export default function WeightSliders({ weights, onChange, iterations, onIterati
           <p className="text-[10px] text-gray-400 mt-1">
             More iterations = more accurate, slower
           </p>
+        </div>
+      )}
+
+      {/* Luck Factor Slider */}
+      {luckFactor !== undefined && onLuckFactorChange && (
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 group relative cursor-help">
+              <span className="border-b border-dotted border-gray-300 dark:border-gray-600">Luck Factor</span>
+              <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 px-3 py-2 text-[11px] leading-snug text-white bg-gray-900 dark:bg-gray-600 rounded-lg shadow-lg w-56 text-left font-normal z-50 pointer-events-none">
+                Injects randomness into each matchup simulation. Higher values mean more unpredictable outcomes — two people with the same settings will get different brackets. 0% = pure model, 20% = maximum chaos.
+                <span className="absolute top-full left-4 border-4 border-transparent border-t-gray-900 dark:border-t-gray-600" />
+              </span>
+            </span>
+            <span className="text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100">
+              {Math.round(luckFactor * 100)}%
+            </span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={20}
+            step={1}
+            value={Math.round(luckFactor * 100)}
+            onChange={(e) => onLuckFactorChange(parseInt(e.target.value, 10) / 100)}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #FF6B00 ${luckFactor * 500}%, #e5e7eb ${luckFactor * 500}%)`,
+            }}
+          />
+          <div className="flex justify-between mt-1">
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">Pure model</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">Max chaos</span>
+          </div>
         </div>
       )}
     </div>

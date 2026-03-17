@@ -161,10 +161,11 @@ function BracketApp() {
     const generated = generateBracket(
       TEAMS, simulationResults, upsetAppetite,
       poolConfig.scoringSystem, weights, biases,
-      MATCHUP_ODDS, HISTORICAL_TRENDS,
+      MATCHUP_ODDS, HISTORICAL_TRENDS, claudeBiases,
+      advancedSettings,
     );
     dispatch({ type: 'SET_BRACKET', payload: generated });
-  }, [simulationResults, upsetAppetite, poolConfig.scoringSystem, weights, biases, dispatch]);
+  }, [simulationResults, upsetAppetite, poolConfig.scoringSystem, weights, biases, claudeBiases, advancedSettings, dispatch]);
 
   // Generate multi brackets
   const handleGenerateMulti = useCallback(() => {
@@ -172,9 +173,10 @@ function BracketApp() {
     const brackets = generateMultiBrackets(
       TEAMS, simulationResults, poolConfig,
       weights, biases, MATCHUP_ODDS, HISTORICAL_TRENDS,
+      claudeBiases, advancedSettings,
     );
     dispatch({ type: 'SET_MULTI_BRACKETS', payload: brackets });
-  }, [simulationResults, poolConfig, weights, biases, dispatch]);
+  }, [simulationResults, poolConfig, weights, biases, claudeBiases, advancedSettings, dispatch]);
 
   // Claude bias handler
   const handleApplyClaudeBias = useCallback(async (text: string) => {
@@ -320,6 +322,8 @@ function BracketApp() {
                   onChange={(w) => dispatch({ type: 'SET_WEIGHTS', payload: w })}
                   iterations={simulationIterations}
                   onIterationsChange={(n) => dispatch({ type: 'SET_SIMULATION_ITERATIONS', payload: n })}
+                  luckFactor={state.luckFactor}
+                  onLuckFactorChange={(n) => dispatch({ type: 'SET_LUCK_FACTOR', payload: n })}
                 />
 
                 {/* Advanced Model Settings */}
@@ -497,6 +501,7 @@ function BracketApp() {
                 claudeBiases={claudeBiases}
                 odds={MATCHUP_ODDS}
                 historicalTrends={HISTORICAL_TRENDS}
+                advancedSettings={advancedSettings}
                 onPick={pickWinner}
                 onNext={handleGuidedNext}
                 onPrev={handleGuidedPrev}

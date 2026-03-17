@@ -16,6 +16,7 @@ import type {
   BracketArchetype,
   PoolConfig,
   Matchup,
+  AdvancedModelSettings,
 } from '../types';
 import { generateBracket } from './bracket-generator';
 
@@ -330,7 +331,8 @@ export function generateMultiBrackets(
   biases: StructuredBias[],
   odds: MatchupOdds[] | undefined,
   historicalTrends: HistoricalTrends | undefined,
-  claudeBiases?: ClaudeBiasAdjustment[]
+  claudeBiases?: ClaudeBiasAdjustment[],
+  advancedSettings?: AdvancedModelSettings
 ): BracketState[] {
   const { numBrackets, poolSize, scoringSystem, archetypes } = poolConfig;
 
@@ -344,7 +346,8 @@ export function generateMultiBrackets(
     biases,
     odds,
     historicalTrends,
-    claudeBiases
+    claudeBiases,
+    advancedSettings
   );
 
   // Step 2: Identify leverage games
@@ -379,7 +382,8 @@ export function generateMultiBrackets(
         biases,
         odds,
         historicalTrends,
-        claudeBiases
+        claudeBiases,
+        advancedSettings
       );
       brackets.push(chalkBracket);
     } else {

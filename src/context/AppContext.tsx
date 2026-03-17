@@ -48,7 +48,8 @@ type AppAction =
   | { type: 'CLEAR_SAVED_STATE' }
   | { type: 'SET_COMPARISON_BRACKET'; payload: BracketState }
   | { type: 'CLEAR_COMPARISON_BRACKET' }
-  | { type: 'SET_ADVANCED_SETTINGS'; payload: AdvancedModelSettings };
+  | { type: 'SET_ADVANCED_SETTINGS'; payload: AdvancedModelSettings }
+  | { type: 'SET_LUCK_FACTOR'; payload: number };
 
 // ── Round ordering for propagation logic ──────────────────────
 
@@ -412,16 +413,62 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_ADVANCED_SETTINGS':
       return { ...state, advancedSettings: action.payload };
 
+    case 'SET_LUCK_FACTOR':
+      return { ...state, luckFactor: Math.max(0, Math.min(0.20, action.payload)) };
+
     default:
       return state;
   }
+}
+
+// ── Randomized weights per visitor ────────────────────────────
+
+function getOrCreateUserSeed(): number {
+  const key = 'bracket-assist-seed';
+  const existing = localStorage.getItem(key);
+  if (existing) return parseInt(existing, 10);
+  const seed = Math.floor(Math.random() * 1000000);
+  localStorage.setItem(key, String(seed));
+  return seed;
+}
+
+/** Simple seeded PRNG (mulberry32) */
+function seededRandom(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function randomizeWeights(): ModelWeights {
+  const rand = seededRandom(getOrCreateUserSeed());
+  const noise = 0.03; // ±3% per weight
+  const raw: ModelWeights = {
+    kenpom: DEFAULT_WEIGHTS.kenpom + (rand() - 0.5) * 2 * noise,
+    barttorvik: DEFAULT_WEIGHTS.barttorvik + (rand() - 0.5) * 2 * noise,
+    net: DEFAULT_WEIGHTS.net + (rand() - 0.5) * 2 * noise,
+    sagarin: DEFAULT_WEIGHTS.sagarin + (rand() - 0.5) * 2 * noise,
+    vegas: DEFAULT_WEIGHTS.vegas + (rand() - 0.5) * 2 * noise,
+    historical: DEFAULT_WEIGHTS.historical + (rand() - 0.5) * 2 * noise,
+    experience: DEFAULT_WEIGHTS.experience + (rand() - 0.5) * 2 * noise,
+  };
+  // Clamp and normalize to sum to 1.0
+  const keys = Object.keys(raw) as (keyof ModelWeights)[];
+  for (const k of keys) raw[k] = Math.max(0.01, raw[k]);
+  const total = keys.reduce((s, k) => s + raw[k], 0);
+  for (const k of keys) raw[k] = raw[k] / total;
+  return raw;
 }
 
 // ── Default state ─────────────────────────────────────────────
 
 const defaultState: AppState = {
   mode: 'single',
-  weights: { ...DEFAULT_WEIGHTS },
+  weights: randomizeWeights(),
+  luckFactor: 0.05,
   upsetAppetite: 'moderate',
   biases: [],
   claudeBiases: [],
