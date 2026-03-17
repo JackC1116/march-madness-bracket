@@ -202,11 +202,18 @@ function pickWinner(
  * Resolve First Four matchups using probability-based selection.
  * Respects the simulation's win probabilities rather than always picking the favorite.
  */
-function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): Team[] {
+interface FirstFourResult {
+  resolvedTeams: Team[];
+  matchups: Record<string, Matchup>;
+}
+
+function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): FirstFourResult {
   const firstFour = teams.filter((t) => t.isFirstFour);
   const regular = teams.filter((t) => !t.isFirstFour);
   const resolved = [...regular];
   const processed = new Set<string>();
+  const ffMatchups: Record<string, Matchup> = {};
+  let position = 0;
 
   for (const team of firstFour) {
     if (processed.has(team.id)) continue;
@@ -214,17 +221,33 @@ function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): Team[]
     if (opp) {
       processed.add(team.id);
       processed.add(opp.id);
+      position++;
       // Use CPR differential to compute win probability, then sample
       const diff = cprMap[team.id] - cprMap[opp.id];
       const probTeamWins = 1 / (1 + Math.exp(-5 * diff));
       const winner = Math.random() < probTeamWins ? team : opp;
       resolved.push(winner);
+
+      const id = `ff-${position}`;
+      ffMatchups[id] = {
+        id,
+        round: 'First Four' as Round,
+        region: team.region,
+        position,
+        teamAId: team.id,
+        teamBId: opp.id,
+        winnerId: winner.id,
+        winProbA: probTeamWins,
+        locked: false,
+        isUpset: winner.id === opp.id && cprMap[team.id] > cprMap[opp.id],
+        confidence: Math.abs(probTeamWins - 0.5) * 2,
+      };
     } else {
       resolved.push(team);
     }
   }
 
-  return resolved;
+  return { resolvedTeams: resolved, matchups: ffMatchups };
 }
 
 /**
@@ -265,7 +288,7 @@ export function generateBracket(
   });
 
   // Resolve First Four
-  const resolvedTeams = resolveFirstFour(teams, cprMap);
+  const { resolvedTeams, matchups: ffMatchups } = resolveFirstFour(teams, cprMap);
 
   // Index by ID
   const teamsById: Record<string, Team> = {};
@@ -273,8 +296,8 @@ export function generateBracket(
     teamsById[t.id] = t;
   }
 
-  // Build matchups structure
-  const matchups: Record<string, Matchup> = {};
+  // Build matchups structure — start with First Four matchups
+  const matchups: Record<string, Matchup> = { ...ffMatchups };
   function createMatchupId(round: Round, region: Region | 'Final Four', position: number): string {
     return `${round}-${region}-${position}`;
   }
