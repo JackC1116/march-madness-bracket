@@ -137,8 +137,9 @@ function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRo
     <div
       onClick={onClick}
       className={`
-        flex items-center gap-1 px-1.5 py-[3px] transition-colors cursor-pointer h-[18px]
-        ${isWinner ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
+        flex items-center gap-1 px-1.5 py-[3px] transition-colors h-[18px]
+        ${onClick ? 'cursor-pointer' : ''}
+        ${isWinner ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : onClick ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : ''}
       `}
     >
       <span className={`text-[9px] w-3.5 text-center font-bold rounded-sm px-0.5 ${getSeedColorClasses(team.seed)}`}>
@@ -168,16 +169,11 @@ interface MatchupSlotProps {
   onSelectMatchup: (matchupId: string) => void;
 }
 
-function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup }: MatchupSlotProps) {
+function MatchupSlot({ matchup, teams, isSelected, onPickWinner: _onPickWinner, onSelectMatchup }: MatchupSlotProps) {
   const teamA = matchup.teamAId ? teams[matchup.teamAId] : null;
   const teamB = matchup.teamBId ? teams[matchup.teamBId] : null;
   const winProbA = matchup.winProbA ?? 0.5;
   const winProbB = 1 - winProbA;
-
-  const handlePick = (e: React.MouseEvent, teamId: string) => {
-    e.stopPropagation();
-    onPickWinner(matchup.id, teamId);
-  };
 
   // Compute upset rate badge
   let upsetBadge: { rate: number; winnerSeed: number } | null = null;
@@ -207,7 +203,6 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
           isWinner={matchup.winnerId === matchup.teamAId}
           isLocked={matchup.locked}
           isUpset={matchup.isUpset && matchup.winnerId === matchup.teamAId}
-          onClick={teamA ? (e) => handlePick(e, teamA.id) : undefined}
         />
         <div className="border-t border-gray-100 dark:border-gray-700" />
         <TeamRow
@@ -216,7 +211,6 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
           isWinner={matchup.winnerId === matchup.teamBId}
           isLocked={matchup.locked}
           isUpset={matchup.isUpset && matchup.winnerId === matchup.teamBId}
-          onClick={teamB ? (e) => handlePick(e, teamB.id) : undefined}
         />
       </div>
       {upsetBadge && (

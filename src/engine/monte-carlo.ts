@@ -150,7 +150,7 @@ function simulateOnce(
       const prob = computeWinProbability(
         slotA.team, slotB.team,
         slotA.cpr, slotB.cpr,
-        'R64', historicalTrends, advancedSettings
+        'R64', historicalTrends, advancedSettings, region
       );
       const aWins = simulateMatchup(prob, luckFactor);
       const winner = aWins ? slotA : slotB;
@@ -172,7 +172,7 @@ function simulateOnce(
         const prob = computeWinProbability(
           slotA.team, slotB.team,
           slotA.cpr, slotB.cpr,
-          roundNames[ri], historicalTrends, advancedSettings
+          roundNames[ri], historicalTrends, advancedSettings, region
         );
         const aWins = simulateMatchup(prob, luckFactor);
         const winner = aWins ? slotA : slotB;

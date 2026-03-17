@@ -5,9 +5,94 @@
 import type {
   Team,
   Round,
+  Region,
   HistoricalTrends,
   AdvancedModelSettings,
 } from '../types';
+
+// ── Venue locations for travel distance calculation ──────────
+const VENUE_LOCATIONS: Record<string, { lat: number; lng: number }> = {
+  // First/Second Round sites
+  'Greenville': { lat: 34.85, lng: -82.39 },
+  'San Diego': { lat: 32.72, lng: -117.16 },
+  'Buffalo': { lat: 42.89, lng: -78.88 },
+  'Philadelphia': { lat: 39.95, lng: -75.17 },
+  'Tampa': { lat: 27.95, lng: -82.46 },
+  'Oklahoma City': { lat: 35.47, lng: -97.52 },
+  'Portland': { lat: 45.52, lng: -122.68 },
+  'St. Louis': { lat: 38.63, lng: -90.20 },
+  // Regional sites
+  'Washington DC': { lat: 38.91, lng: -77.04 },  // East
+  'Houston': { lat: 29.76, lng: -95.36 },         // South
+  'San Jose': { lat: 37.34, lng: -121.89 },       // West
+  'Chicago': { lat: 41.88, lng: -87.63 },         // Midwest
+  // Final Four
+  'Indianapolis': { lat: 39.77, lng: -86.16 },
+};
+
+/** Map round + region to a venue city. */
+function getVenueForRound(round: Round, region: Region | 'Final Four'): string | null {
+  if (round === 'Final Four' || round === 'Championship') return 'Indianapolis';
+  if (round === 'Sweet 16' || round === 'Elite 8') {
+    switch (region) {
+      case 'East': return 'Washington DC';
+      case 'South': return 'Houston';
+      case 'West': return 'San Jose';
+      case 'Midwest': return 'Chicago';
+      default: return null;
+    }
+  }
+  // First/Second round — approximate by region
+  if (round === 'R64' || round === 'R32') {
+    switch (region) {
+      case 'East': return 'Philadelphia';
+      case 'South': return 'Tampa';
+      case 'West': return 'Portland';
+      case 'Midwest': return 'St. Louis';
+      default: return null;
+    }
+  }
+  return null;
+}
+
+/** Haversine distance in miles between two lat/lng points. */
+function haversineDistance(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 3959; // Earth radius in miles
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h =
+    sinLat * sinLat +
+    Math.cos((a.lat * Math.PI) / 180) *
+      Math.cos((b.lat * Math.PI) / 180) *
+      sinLng * sinLng;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Compute a CPR bonus for travel distance advantage.
+ * The team closer to the venue gets a small boost (up to ~0.03 CPR).
+ */
+function computeTravelBonus(
+  team: Team,
+  opponent: Team,
+  round: Round,
+  region: Region | 'Final Four',
+): number {
+  if (!team.location || !opponent.location) return 0;
+  const venueName = getVenueForRound(round, region);
+  if (!venueName) return 0;
+  const venue = VENUE_LOCATIONS[venueName];
+  if (!venue) return 0;
+
+  const myDistance = haversineDistance(team.location, venue);
+  const oppDistance = haversineDistance(opponent.location, venue);
+  return Math.max(0, (oppDistance - myDistance) / 2000) * 0.02;
+}
 
 /**
  * Standard logistic function: converts a rating differential into a probability.
@@ -180,9 +265,18 @@ export function computeWinProbability(
   cprB: number,
   round: Round,
   historicalTrends: HistoricalTrends | undefined,
-  advancedSettings?: AdvancedModelSettings
+  advancedSettings?: AdvancedModelSettings,
+  region?: Region | 'Final Four',
 ): number {
-  const diff = cprA - cprB;
+  // Apply travel distance bonus to CPR before computing probability
+  let adjustedCprA = cprA;
+  let adjustedCprB = cprB;
+  if (advancedSettings?.travelDistance && region) {
+    adjustedCprA += computeTravelBonus(teamA, teamB, round, region);
+    adjustedCprB += computeTravelBonus(teamB, teamA, round, region);
+  }
+
+  const diff = adjustedCprA - adjustedCprB;
   let prob = logistic(diff);
 
   const styleModifier = computeStyleMatchupModifier(teamA, teamB);

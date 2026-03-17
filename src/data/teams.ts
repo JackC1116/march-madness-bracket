@@ -662,6 +662,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 69, rating: 78.8 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.40, ftRate: 0.32, turnoverRate: 0.19, orbRate: 0.27 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won Big South', momentum: 'warm' },
+    location: { lat: 35.96, lng: -80.01 },
   },
   {
     id: 'arkansas',
@@ -675,6 +676,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 15, rating: 89.5 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.34, ftRate: 0.37, turnoverRate: 0.17, orbRate: 0.33 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W4', confTourneyResult: 'Won SEC title', momentum: 'hot' },
+    location: { lat: 36.07, lng: -94.17 },
   },
   {
     id: 'hawaii',
@@ -688,6 +690,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 94, rating: 76.3 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.37, ftRate: 0.31, turnoverRate: 0.17, orbRate: 0.28 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won Big West', momentum: 'neutral' },
+    location: { lat: 21.30, lng: -157.82 },
   },
   {
     id: 'byu',
@@ -701,6 +704,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 24, rating: 86.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.15, orbRate: 0.29 },
     recentForm: { last10Record: '4-6', last10Wins: 4, last10Losses: 6, streak: 'L3', confTourneyResult: 'Unknown', momentum: 'cold', injuryNote: 'Richie Saunders out (torn ACL, 18 PPG, team 4-9 without him)' },
+    location: { lat: 40.23, lng: -111.66 },
   },
   // BYU's 11 seed is winner of Texas vs NC State (First Four)
   {
@@ -715,6 +719,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 10, rating: 91.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.38, turnoverRate: 0.15, orbRate: 0.33 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won WCC title', momentum: 'warm', injuryNote: 'Braden Huff out (knee since Jan 15, 17.8 PPG)' },
+    location: { lat: 47.67, lng: -117.40 },
   },
   {
     id: 'kennesaw-state',
@@ -728,6 +733,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 126, rating: 73.0 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.31, turnoverRate: 0.17, orbRate: 0.29 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W3', confTourneyResult: 'Won CUSA title', momentum: 'warm' },
+    location: { lat: 34.03, lng: -84.58 },
   },
   {
     id: 'miami',
@@ -741,6 +747,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 27, rating: 86.0 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.16, orbRate: 0.29 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 25.72, lng: -80.28 },
   },
   {
     id: 'missouri',
@@ -754,6 +761,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 38, rating: 83.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.35, turnoverRate: 0.17, orbRate: 0.30 },
     recentForm: { last10Record: '5-5', last10Wins: 5, last10Losses: 5, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 38.94, lng: -92.33 },
   },
   {
     id: 'purdue',
@@ -767,6 +775,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 8, rating: 92.2 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.39, turnoverRate: 0.15, orbRate: 0.34 },
     recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W5', confTourneyResult: 'Won Big Ten title', momentum: 'hot' },
+    location: { lat: 40.42, lng: -86.91 },
   },
   {
     id: 'queens',
@@ -780,6 +789,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 141, rating: 71.5 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.34, ftRate: 0.30, turnoverRate: 0.17, orbRate: 0.27 },
     recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won ASUN', momentum: 'neutral' },
+    location: { lat: 35.23, lng: -80.84 },
   },
 
   // ============================================================
@@ -797,6 +807,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 2, rating: 95.2 },
     profile: { style: 'defensive', tempo: 'medium', threePtRate: 0.35, ftRate: 0.36, turnoverRate: 0.13, orbRate: 0.31 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Lost Big Ten final', momentum: 'warm' },
+    location: { lat: 42.28, lng: -83.74 },
   },
   // Michigan's 16 seed is winner of UMBC vs Howard (First Four)
   {
@@ -811,6 +822,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 28, rating: 85.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.34, ftRate: 0.36, turnoverRate: 0.16, orbRate: 0.31 },
     recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 33.95, lng: -83.37 },
   },
   {
     id: 'st-louis',
@@ -824,6 +836,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 37, rating: 84.1 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.34, turnoverRate: 0.16, orbRate: 0.30 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W2', confTourneyResult: 'Won A-10 tourney', momentum: 'warm' },
+    location: { lat: 38.63, lng: -90.23 },
   },
   {
     id: 'texas-tech',
@@ -837,6 +850,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 17, rating: 89.0 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.32 },
     recentForm: { last10Record: '4-6', last10Wins: 4, last10Losses: 6, streak: 'L2', confTourneyResult: 'Lost Big 12 tourney early', momentum: 'cold', injuryNote: 'JT Toppin out (season-ending knee injury)' },
+    location: { lat: 33.58, lng: -101.85 },
   },
   {
     id: 'akron',
@@ -850,6 +864,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 62, rating: 79.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.36, ftRate: 0.32, turnoverRate: 0.17, orbRate: 0.29 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won MAC', momentum: 'warm' },
+    location: { lat: 41.08, lng: -81.51 },
   },
   {
     id: 'alabama',
@@ -863,6 +878,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 12, rating: 90.8 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.37, ftRate: 0.36, turnoverRate: 0.17, orbRate: 0.33 },
     recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Lost SEC QF', momentum: 'cool' },
+    location: { lat: 33.21, lng: -87.54 },
   },
   {
     id: 'hofstra',
@@ -876,6 +892,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 101, rating: 75.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.39, ftRate: 0.32, turnoverRate: 0.18, orbRate: 0.27 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won CAA', momentum: 'neutral' },
+    location: { lat: 40.72, lng: -73.60 },
   },
   {
     id: 'tennessee',
@@ -889,6 +906,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 21, rating: 87.8 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.32, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.32 },
     recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 35.95, lng: -83.93 },
   },
   // Tennessee's 11 seed is winner of Miami (OH) vs SMU (First Four)
   {
@@ -903,6 +921,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 6, rating: 93.0 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.35, ftRate: 0.34, turnoverRate: 0.13, orbRate: 0.29 },
     recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Lost ACC final', momentum: 'warm' },
+    location: { lat: 38.03, lng: -78.51 },
   },
   {
     id: 'wright-state',
@@ -916,6 +935,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 131, rating: 72.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.31, turnoverRate: 0.18, orbRate: 0.28 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won Horizon', momentum: 'neutral' },
+    location: { lat: 39.78, lng: -84.06 },
   },
   {
     id: 'kentucky',
@@ -929,6 +949,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 27, rating: 85.8 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.35, ftRate: 0.37, turnoverRate: 0.16, orbRate: 0.31 },
     recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 38.04, lng: -84.50 },
   },
   {
     id: 'santa-clara',
@@ -942,6 +963,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 40, rating: 83.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.37, ftRate: 0.33, turnoverRate: 0.16, orbRate: 0.28 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
+    location: { lat: 37.35, lng: -121.94 },
   },
   {
     id: 'iowa-state',
@@ -955,6 +977,7 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 5, rating: 93.5 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.34, ftRate: 0.35, turnoverRate: 0.14, orbRate: 0.31 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost Big 12 semifinal', momentum: 'neutral' },
+    location: { lat: 42.03, lng: -93.63 },
   },
   {
     id: 'tennessee-state',
@@ -968,5 +991,6 @@ export const TEAMS: Team[] = [
     sagarin: { rank: 156, rating: 70.0 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.35, ftRate: 0.32, turnoverRate: 0.20, orbRate: 0.29 },
     recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won OVC', momentum: 'neutral' },
+    location: { lat: 36.17, lng: -86.83 },
   },
 ];
