@@ -140,6 +140,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 1, barthag: 0.98 },
     sagarin: { rank: 1, rating: 95.8 },
     profile: { style: 'balanced', tempo: 'fast', threePtRate: 0.36, ftRate: 0.38, turnoverRate: 0.14, orbRate: 0.33 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W11', confTourneyResult: 'Won ACC title', momentum: 'hot', injuryNote: 'Caleb Foster out (broken foot surgery)' },
   },
   {
     id: 'siena',
@@ -152,6 +153,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 198, barthag: 0.38 },
     sagarin: { rank: 196, rating: 65.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.39, ftRate: 0.29, turnoverRate: 0.19, orbRate: 0.26 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won MAAC', momentum: 'neutral' },
   },
   {
     id: 'ohio-state',
@@ -164,6 +166,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 29, barthag: 0.86 },
     sagarin: { rank: 30, rating: 85.3 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.34, ftRate: 0.35, turnoverRate: 0.16, orbRate: 0.30 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'tcu',
@@ -176,6 +179,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 32, barthag: 0.85 },
     sagarin: { rank: 32, rating: 84.8 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.36, turnoverRate: 0.17, orbRate: 0.31 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost Big 12 QF', momentum: 'warm' },
   },
   {
     id: 'st-johns',
@@ -188,6 +192,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 17, barthag: 0.91 },
     sagarin: { rank: 18, rating: 88.7 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.36, ftRate: 0.37, turnoverRate: 0.16, orbRate: 0.31 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W4', confTourneyResult: 'Won Big East title', momentum: 'hot' },
   },
   {
     id: 'northern-iowa',
@@ -200,6 +205,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 60, barthag: 0.76 },
     sagarin: { rank: 59, rating: 80.2 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.38, ftRate: 0.30, turnoverRate: 0.15, orbRate: 0.26 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won MVC', momentum: 'neutral' },
   },
   {
     id: 'kansas',
@@ -212,6 +218,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 14, barthag: 0.92 },
     sagarin: { rank: 14, rating: 89.9 },
     profile: { style: 'balanced', tempo: 'fast', threePtRate: 0.35, ftRate: 0.37, turnoverRate: 0.15, orbRate: 0.32 },
+    recentForm: { last10Record: '4-6', last10Wins: 4, last10Losses: 6, streak: 'L2', confTourneyResult: 'Lost Big 12 SF', momentum: 'cold', injuryNote: 'Darryn Peterson inconsistency' },
   },
   {
     id: 'cal-baptist',
@@ -224,6 +231,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 93, barthag: 0.67 },
     sagarin: { rank: 91, rating: 76.8 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.40, ftRate: 0.31, turnoverRate: 0.18, orbRate: 0.27 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won WAC', momentum: 'neutral' },
   },
   {
     id: 'louisville',
@@ -236,6 +244,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 21, barthag: 0.89 },
     sagarin: { rank: 22, rating: 87.5 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.35, ftRate: 0.36, turnoverRate: 0.16, orbRate: 0.32 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'south-florida',
@@ -248,6 +257,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 44, barthag: 0.81 },
     sagarin: { rank: 43, rating: 83.1 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.34, turnoverRate: 0.17, orbRate: 0.30 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W6', confTourneyResult: 'Won American title', momentum: 'hot' },
   },
   {
     id: 'michigan-state',
@@ -260,6 +270,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 10, barthag: 0.94 },
     sagarin: { rank: 11, rating: 91.2 },
     profile: { style: 'balanced', tempo: 'fast', threePtRate: 0.34, ftRate: 0.36, turnoverRate: 0.14, orbRate: 0.33 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W2', confTourneyResult: 'Lost Big Ten semifinal', momentum: 'warm' },
   },
   {
     id: 'north-dakota-state',
@@ -272,6 +283,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 118, barthag: 0.59 },
     sagarin: { rank: 117, rating: 74.0 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.35, ftRate: 0.29, turnoverRate: 0.17, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won Summit', momentum: 'neutral' },
   },
   {
     id: 'ucla',
@@ -284,6 +296,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 24, barthag: 0.88 },
     sagarin: { rank: 25, rating: 86.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.34, turnoverRate: 0.15, orbRate: 0.30 },
+    recentForm: { last10Record: '5-5', last10Wins: 5, last10Losses: 5, streak: 'L2', confTourneyResult: 'Lost Big Ten semifinal', momentum: 'cool', injuryNote: 'Star forward out (knee strain)' },
   },
   {
     id: 'ucf',
@@ -296,6 +309,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 37, barthag: 0.83 },
     sagarin: { rank: 36, rating: 84.0 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.33, turnoverRate: 0.17, orbRate: 0.29 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'uconn',
@@ -308,6 +322,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 12, barthag: 0.93 },
     sagarin: { rank: 13, rating: 90.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.33, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.32 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L2', confTourneyResult: 'Lost Big East final', momentum: 'cold' },
   },
   {
     id: 'furman',
@@ -320,6 +335,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 138, barthag: 0.54 },
     sagarin: { rank: 136, rating: 72.3 },
     profile: { style: 'balanced', tempo: 'slow', threePtRate: 0.37, ftRate: 0.30, turnoverRate: 0.16, orbRate: 0.26 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W4', confTourneyResult: 'Won SoCon title', momentum: 'warm' },
   },
 
   // ============================================================
@@ -336,6 +352,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 3, barthag: 0.97 },
     sagarin: { rank: 4, rating: 94.5 },
     profile: { style: 'balanced', tempo: 'fast', threePtRate: 0.37, ftRate: 0.36, turnoverRate: 0.14, orbRate: 0.32 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W2', confTourneyResult: 'Lost SEC tourney early', momentum: 'warm' },
   },
   // Florida's 16 seed is winner of Prairie View vs Lehigh (First Four)
   {
@@ -349,6 +366,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 31, barthag: 0.85 },
     sagarin: { rank: 31, rating: 84.9 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.32, ftRate: 0.35, turnoverRate: 0.16, orbRate: 0.31 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'iowa',
@@ -361,6 +379,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 34, barthag: 0.84 },
     sagarin: { rank: 34, rating: 84.3 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.17, orbRate: 0.29 },
+    recentForm: { last10Record: '3-7', last10Wins: 3, last10Losses: 7, streak: 'L4', confTourneyResult: 'Unknown', momentum: 'cold' },
   },
   {
     id: 'vanderbilt',
@@ -373,6 +392,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 18, barthag: 0.90 },
     sagarin: { rank: 19, rating: 88.2 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.35, turnoverRate: 0.16, orbRate: 0.30 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Lost SEC final', momentum: 'warm' },
   },
   {
     id: 'mcneese',
@@ -385,6 +405,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 66, barthag: 0.74 },
     sagarin: { rank: 64, rating: 79.5 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.39, ftRate: 0.32, turnoverRate: 0.18, orbRate: 0.28 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W2', confTourneyResult: 'Won Southland', momentum: 'neutral' },
   },
   {
     id: 'nebraska',
@@ -397,6 +418,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 15, barthag: 0.91 },
     sagarin: { rank: 16, rating: 89.2 },
     profile: { style: 'defensive', tempo: 'medium', threePtRate: 0.34, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.31 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'troy',
@@ -409,6 +431,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 98, barthag: 0.65 },
     sagarin: { rank: 96, rating: 76.0 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.33, turnoverRate: 0.18, orbRate: 0.29 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won Sun Belt', momentum: 'neutral' },
   },
   {
     id: 'north-carolina',
@@ -421,6 +444,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 22, barthag: 0.89 },
     sagarin: { rank: 23, rating: 87.0 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.36, ftRate: 0.35, turnoverRate: 0.16, orbRate: 0.33 },
+    recentForm: { last10Record: '5-5', last10Wins: 5, last10Losses: 5, streak: 'L2', confTourneyResult: 'Unknown', momentum: 'cold', injuryNote: 'Caleb Wilson out (season-ending thumb surgery, was projected top-5 pick)' },
   },
   {
     id: 'vcu',
@@ -433,6 +457,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 43, barthag: 0.81 },
     sagarin: { rank: 42, rating: 83.2 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.33, ftRate: 0.34, turnoverRate: 0.18, orbRate: 0.32 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won A-10', momentum: 'warm' },
   },
   {
     id: 'illinois',
@@ -445,6 +470,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 7, barthag: 0.95 },
     sagarin: { rank: 7, rating: 92.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.39, ftRate: 0.37, turnoverRate: 0.15, orbRate: 0.32 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost Big Ten tourney', momentum: 'neutral' },
   },
   {
     id: 'penn',
@@ -457,6 +483,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 123, barthag: 0.57 },
     sagarin: { rank: 121, rating: 73.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.36, ftRate: 0.30, turnoverRate: 0.16, orbRate: 0.27 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W3', confTourneyResult: 'Won Ivy', momentum: 'warm' },
   },
   {
     id: 'st-marys',
@@ -469,6 +496,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 25, barthag: 0.87 },
     sagarin: { rank: 26, rating: 86.2 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.35, ftRate: 0.33, turnoverRate: 0.14, orbRate: 0.29 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost WCC tourney', momentum: 'neutral' },
   },
   {
     id: 'texas-am',
@@ -481,6 +509,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 36, barthag: 0.84 },
     sagarin: { rank: 35, rating: 84.2 },
     profile: { style: 'defensive', tempo: 'medium', threePtRate: 0.32, ftRate: 0.35, turnoverRate: 0.16, orbRate: 0.31 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'houston',
@@ -493,6 +522,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 8, barthag: 0.95 },
     sagarin: { rank: 9, rating: 92.0 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.31, ftRate: 0.35, turnoverRate: 0.14, orbRate: 0.34 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost Big 12 final', momentum: 'warm' },
   },
   {
     id: 'idaho',
@@ -505,6 +535,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 148, barthag: 0.50 },
     sagarin: { rank: 146, rating: 71.0 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.36, ftRate: 0.31, turnoverRate: 0.18, orbRate: 0.27 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Won Big Sky', momentum: 'neutral' },
   },
 
   // ============================================================
@@ -521,6 +552,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 2, barthag: 0.97 },
     sagarin: { rank: 3, rating: 95.0 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.38, turnoverRate: 0.14, orbRate: 0.33 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W5', confTourneyResult: 'Won Big 12 title', momentum: 'hot' },
   },
   {
     id: 'liu',
@@ -533,6 +565,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 228, barthag: 0.28 },
     sagarin: { rank: 226, rating: 61.0 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.30, turnoverRate: 0.21, orbRate: 0.26 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won NEC', momentum: 'neutral' },
   },
   {
     id: 'villanova',
@@ -545,6 +578,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 30, barthag: 0.86 },
     sagarin: { rank: 29, rating: 85.0 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.15, orbRate: 0.28 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'utah-state',
@@ -557,6 +591,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 33, barthag: 0.84 },
     sagarin: { rank: 33, rating: 84.5 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.34, ftRate: 0.33, turnoverRate: 0.16, orbRate: 0.30 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'wisconsin',
@@ -569,6 +604,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 19, barthag: 0.90 },
     sagarin: { rank: 20, rating: 88.0 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.36, ftRate: 0.35, turnoverRate: 0.14, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'high-point',
@@ -581,6 +617,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 70, barthag: 0.73 },
     sagarin: { rank: 69, rating: 78.8 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.40, ftRate: 0.32, turnoverRate: 0.19, orbRate: 0.27 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won Big South', momentum: 'warm' },
   },
   {
     id: 'arkansas',
@@ -593,6 +630,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 16, barthag: 0.92 },
     sagarin: { rank: 15, rating: 89.5 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.34, ftRate: 0.37, turnoverRate: 0.17, orbRate: 0.33 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W4', confTourneyResult: 'Won SEC title', momentum: 'hot' },
   },
   {
     id: 'hawaii',
@@ -605,6 +643,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 96, barthag: 0.66 },
     sagarin: { rank: 94, rating: 76.3 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.37, ftRate: 0.31, turnoverRate: 0.17, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won Big West', momentum: 'neutral' },
   },
   {
     id: 'byu',
@@ -617,6 +656,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 23, barthag: 0.88 },
     sagarin: { rank: 24, rating: 86.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.15, orbRate: 0.29 },
+    recentForm: { last10Record: '4-6', last10Wins: 4, last10Losses: 6, streak: 'L3', confTourneyResult: 'Unknown', momentum: 'cold', injuryNote: 'Richie Saunders out (torn ACL, 18 PPG, team 4-9 without him)' },
   },
   // BYU's 11 seed is winner of Texas vs NC State (First Four)
   {
@@ -630,6 +670,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 9, barthag: 0.94 },
     sagarin: { rank: 10, rating: 91.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.38, turnoverRate: 0.15, orbRate: 0.33 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won WCC title', momentum: 'warm', injuryNote: 'Braden Huff out (knee since Jan 15, 17.8 PPG)' },
   },
   {
     id: 'kennesaw-state',
@@ -642,6 +683,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 128, barthag: 0.56 },
     sagarin: { rank: 126, rating: 73.0 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.31, turnoverRate: 0.17, orbRate: 0.29 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W3', confTourneyResult: 'Won CUSA title', momentum: 'warm' },
   },
   {
     id: 'miami',
@@ -654,6 +696,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 26, barthag: 0.87 },
     sagarin: { rank: 27, rating: 86.0 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.34, turnoverRate: 0.16, orbRate: 0.29 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'missouri',
@@ -666,6 +709,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 39, barthag: 0.83 },
     sagarin: { rank: 38, rating: 83.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.35, turnoverRate: 0.17, orbRate: 0.30 },
+    recentForm: { last10Record: '5-5', last10Wins: 5, last10Losses: 5, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'purdue',
@@ -678,6 +722,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 6, barthag: 0.95 },
     sagarin: { rank: 8, rating: 92.2 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.38, ftRate: 0.39, turnoverRate: 0.15, orbRate: 0.34 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'W5', confTourneyResult: 'Won Big Ten title', momentum: 'hot' },
   },
   {
     id: 'queens',
@@ -690,6 +735,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 143, barthag: 0.52 },
     sagarin: { rank: 141, rating: 71.5 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.34, ftRate: 0.30, turnoverRate: 0.17, orbRate: 0.27 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won ASUN', momentum: 'neutral' },
   },
 
   // ============================================================
@@ -706,6 +752,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 4, barthag: 0.97 },
     sagarin: { rank: 2, rating: 95.2 },
     profile: { style: 'defensive', tempo: 'medium', threePtRate: 0.35, ftRate: 0.36, turnoverRate: 0.13, orbRate: 0.31 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Lost Big Ten final', momentum: 'warm' },
   },
   // Michigan's 16 seed is winner of UMBC vs Howard (First Four)
   {
@@ -719,6 +766,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 28, barthag: 0.86 },
     sagarin: { rank: 28, rating: 85.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.34, ftRate: 0.36, turnoverRate: 0.16, orbRate: 0.31 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'st-louis',
@@ -731,6 +779,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 35, barthag: 0.84 },
     sagarin: { rank: 37, rating: 84.1 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.34, turnoverRate: 0.16, orbRate: 0.30 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W2', confTourneyResult: 'Won A-10 tourney', momentum: 'warm' },
   },
   {
     id: 'texas-tech',
@@ -743,6 +792,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 16, barthag: 0.91 },
     sagarin: { rank: 17, rating: 89.0 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.33, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.32 },
+    recentForm: { last10Record: '4-6', last10Wins: 4, last10Losses: 6, streak: 'L2', confTourneyResult: 'Lost Big 12 tourney early', momentum: 'cold', injuryNote: 'JT Toppin out (season-ending knee injury)' },
   },
   {
     id: 'akron',
@@ -755,6 +805,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 63, barthag: 0.75 },
     sagarin: { rank: 62, rating: 79.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.36, ftRate: 0.32, turnoverRate: 0.17, orbRate: 0.29 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Won MAC', momentum: 'warm' },
   },
   {
     id: 'alabama',
@@ -767,6 +818,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 13, barthag: 0.93 },
     sagarin: { rank: 12, rating: 90.8 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.37, ftRate: 0.36, turnoverRate: 0.17, orbRate: 0.33 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Lost SEC QF', momentum: 'cool' },
   },
   {
     id: 'hofstra',
@@ -779,6 +831,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 103, barthag: 0.64 },
     sagarin: { rank: 101, rating: 75.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.39, ftRate: 0.32, turnoverRate: 0.18, orbRate: 0.27 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won CAA', momentum: 'neutral' },
   },
   {
     id: 'tennessee',
@@ -791,6 +844,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 20, barthag: 0.90 },
     sagarin: { rank: 21, rating: 87.8 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.32, ftRate: 0.36, turnoverRate: 0.15, orbRate: 0.32 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   // Tennessee's 11 seed is winner of Miami (OH) vs SMU (First Four)
   {
@@ -804,6 +858,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 5, barthag: 0.96 },
     sagarin: { rank: 6, rating: 93.0 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.35, ftRate: 0.34, turnoverRate: 0.13, orbRate: 0.29 },
+    recentForm: { last10Record: '8-2', last10Wins: 8, last10Losses: 2, streak: 'W3', confTourneyResult: 'Lost ACC final', momentum: 'warm' },
   },
   {
     id: 'wright-state',
@@ -816,6 +871,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 133, barthag: 0.55 },
     sagarin: { rank: 131, rating: 72.8 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.35, ftRate: 0.31, turnoverRate: 0.18, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won Horizon', momentum: 'neutral' },
   },
   {
     id: 'kentucky',
@@ -828,6 +884,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 27, barthag: 0.87 },
     sagarin: { rank: 27, rating: 85.8 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.35, ftRate: 0.37, turnoverRate: 0.16, orbRate: 0.31 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'santa-clara',
@@ -840,6 +897,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 38, barthag: 0.83 },
     sagarin: { rank: 40, rating: 83.5 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.37, ftRate: 0.33, turnoverRate: 0.16, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Unknown', momentum: 'neutral' },
   },
   {
     id: 'iowa-state',
@@ -852,6 +910,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 11, barthag: 0.96 },
     sagarin: { rank: 5, rating: 93.5 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.34, ftRate: 0.35, turnoverRate: 0.14, orbRate: 0.31 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'L1', confTourneyResult: 'Lost Big 12 semifinal', momentum: 'neutral' },
   },
   {
     id: 'tennessee-state',
@@ -864,5 +923,6 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 158, barthag: 0.48 },
     sagarin: { rank: 156, rating: 70.0 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.35, ftRate: 0.32, turnoverRate: 0.20, orbRate: 0.29 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W2', confTourneyResult: 'Won OVC', momentum: 'neutral' },
   },
 ];

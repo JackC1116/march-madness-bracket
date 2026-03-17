@@ -13,6 +13,7 @@ import type {
   HistoricalTrends,
   SimulationResults,
   TeamSimResult,
+  AdvancedModelSettings,
 } from '../types';
 import { computeAllCPR } from './composite-score';
 import { computeWinProbability, simulateMatchup } from './matchup-sim';

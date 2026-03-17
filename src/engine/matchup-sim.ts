@@ -179,7 +179,8 @@ export function computeWinProbability(
   cprA: number,
   cprB: number,
   round: Round,
-  historicalTrends: HistoricalTrends | undefined
+  historicalTrends: HistoricalTrends | undefined,
+  advancedSettings?: AdvancedModelSettings
 ): number {
   const diff = cprA - cprB;
   let prob = logistic(diff);
@@ -189,6 +190,22 @@ export function computeWinProbability(
   const confModifier = conferenceAdjustment(teamA, teamB, historicalTrends);
 
   prob = prob * styleModifier * trendModifier * confModifier;
+
+  // --- Tempo Trapezoid: increase variance for extreme tempo teams ---
+  if (advancedSettings?.tempoTrapezoid) {
+    const { tempoMinRange, tempoMaxRange } = advancedSettings;
+    const aOutside = teamA.kenpom.adjT < tempoMinRange || teamA.kenpom.adjT > tempoMaxRange;
+    const bOutside = teamB.kenpom.adjT < tempoMinRange || teamB.kenpom.adjT > tempoMaxRange;
+
+    if (aOutside || bOutside) {
+      // Increase upset probability by compressing toward 0.5
+      // Multiply the upset boost by 1.2 for teams with extreme tempo
+      const upsetBoost = 1.2;
+      // Move probability toward 0.5 (increase variance / upset chance)
+      const distFromHalf = prob - 0.5;
+      prob = 0.5 + distFromHalf / upsetBoost;
+    }
+  }
 
   // Clamp to avoid 0% or 100% — upsets always possible in March
   return Math.max(0.02, Math.min(0.98, prob));

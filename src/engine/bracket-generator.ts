@@ -16,8 +16,9 @@ import type {
   ScoringSystem,
   BracketState,
   Matchup,
+  AdvancedModelSettings,
 } from '../types';
-import { computeAllCPR } from './composite-score';
+import { computeAllCPR, computeChampionViability } from './composite-score';
 import { computeWinProbability } from './matchup-sim';
 
 const SEED_MATCHUPS: [number, number][] = [
@@ -244,7 +245,8 @@ export function generateBracket(
   biases: StructuredBias[],
   odds: MatchupOdds[] | undefined,
   historicalTrends: HistoricalTrends | undefined,
-  claudeBiases?: ClaudeBiasAdjustment[]
+  claudeBiases?: ClaudeBiasAdjustment[],
+  advancedSettings?: AdvancedModelSettings
 ): BracketState {
   // Compute CPR
   const cprMap = computeAllCPR({
@@ -254,6 +256,7 @@ export function generateBracket(
     claudeBiases,
     odds,
     historicalTrends,
+    advancedSettings,
   });
 
   // Resolve First Four
@@ -297,7 +300,7 @@ export function generateBracket(
 
       const probA = computeWinProbability(
         teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
-        'R64', historicalTrends
+        'R64', historicalTrends, advancedSettings
       );
 
       const result = pickWinner(
@@ -344,7 +347,7 @@ export function generateBracket(
         const teamB = advancers[i + 1];
         const probA = computeWinProbability(
           teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
-          round, historicalTrends
+          round, historicalTrends, advancedSettings
         );
 
         const result = pickWinner(
@@ -390,13 +393,23 @@ export function generateBracket(
       continue;
     }
 
+    // Apply champion filter: adjust CPR for Final Four viability
+    let adjustedCprA = cprMap[teamA.id];
+    let adjustedCprB = cprMap[teamB.id];
+    if (advancedSettings?.championFilter) {
+      const viabilityA = computeChampionViability(teamA, advancedSettings);
+      const viabilityB = computeChampionViability(teamB, advancedSettings);
+      if (!viabilityA) adjustedCprA -= 0.1;
+      if (!viabilityB) adjustedCprB -= 0.1;
+    }
+
     const probA = computeWinProbability(
-      teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
-      'Final Four', historicalTrends
+      teamA, teamB, adjustedCprA, adjustedCprB,
+      'Final Four', historicalTrends, advancedSettings
     );
 
     const result = pickWinner(
-      { teamA, teamB, probA, cprA: cprMap[teamA.id], cprB: cprMap[teamB.id] },
+      { teamA, teamB, probA, cprA: adjustedCprA, cprB: adjustedCprB },
       4, upsetAppetite, scoringSystem, simulationResults, 'Final Four'
     );
 
@@ -422,13 +435,24 @@ export function generateBracket(
   if (finalists.length === 2) {
     const teamA = finalists[0];
     const teamB = finalists[1];
+
+    // Apply champion filter: adjust CPR for Championship viability
+    let adjustedCprA = cprMap[teamA.id];
+    let adjustedCprB = cprMap[teamB.id];
+    if (advancedSettings?.championFilter) {
+      const viabilityA = computeChampionViability(teamA, advancedSettings);
+      const viabilityB = computeChampionViability(teamB, advancedSettings);
+      if (!viabilityA) adjustedCprA -= 0.1;
+      if (!viabilityB) adjustedCprB -= 0.1;
+    }
+
     const probA = computeWinProbability(
-      teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
-      'Championship', historicalTrends
+      teamA, teamB, adjustedCprA, adjustedCprB,
+      'Championship', historicalTrends, advancedSettings
     );
 
     const result = pickWinner(
-      { teamA, teamB, probA, cprA: cprMap[teamA.id], cprB: cprMap[teamB.id] },
+      { teamA, teamB, probA, cprA: adjustedCprA, cprB: adjustedCprB },
       5, upsetAppetite, scoringSystem, simulationResults, 'Championship'
     );
 
@@ -448,8 +472,181 @@ export function generateBracket(
     };
   }
 
+  // --- Post-processing: Upset Calibration ---
+  if (advancedSettings?.upsetCalibration) {
+    applyUpsetCalibration(matchups, teamsById, advancedSettings);
+  }
+
+  // --- Post-processing: Contrarian Value ---
+  if (advancedSettings?.contrarianValue) {
+    applyContrarianValue(matchups, teamsById, advancedSettings);
+  }
+
   return {
     matchups,
     teams: teamsById,
   };
+}
+
+/**
+ * Post-process bracket to calibrate the number of first-round upsets.
+ *
+ * - If fewer than minFirstRoundUpsets, flip close chalk matchups to upsets.
+ * - If more than maxFirstRoundUpsets, flip some upsets back to chalk.
+ * - If alwaysPick12Over5 is on, ensure at least one 12-over-5 upset exists.
+ */
+function applyUpsetCalibration(
+  matchups: Record<string, Matchup>,
+  teamsById: Record<string, Team>,
+  settings: AdvancedModelSettings
+): void {
+  const r64Matchups = Object.values(matchups).filter((m) => m.round === 'R64');
+
+  // Identify upsets and non-upsets with their closeness
+  const upsets: { id: string; confidence: number }[] = [];
+  const chalk: { id: string; confidence: number }[] = [];
+
+  for (const m of r64Matchups) {
+    if (!m.teamAId || !m.teamBId || !m.winnerId) continue;
+    if (m.isUpset) {
+      upsets.push({ id: m.id, confidence: m.confidence });
+    } else {
+      chalk.push({ id: m.id, confidence: m.confidence });
+    }
+  }
+
+  // Sort chalk by confidence ascending (closest games first — best upset candidates)
+  chalk.sort((a, b) => a.confidence - b.confidence);
+  // Sort upsets by confidence ascending (weakest upsets first — best to flip back)
+  upsets.sort((a, b) => a.confidence - b.confidence);
+
+  // If too few upsets, flip close chalk to upsets
+  while (upsets.length < settings.minFirstRoundUpsets && chalk.length > 0) {
+    const toFlip = chalk.shift()!;
+    const m = matchups[toFlip.id];
+    if (!m || !m.teamAId || !m.teamBId) continue;
+
+    const teamA = teamsById[m.teamAId];
+    const teamB = teamsById[m.teamBId];
+    if (!teamA || !teamB) continue;
+
+    // Flip winner to the higher-seeded (underdog) team
+    const underdog = teamA.seed > teamB.seed ? teamA : teamB;
+    m.winnerId = underdog.id;
+    m.isUpset = true;
+    m.confidence = 1 - m.confidence;
+    upsets.push({ id: m.id, confidence: m.confidence });
+  }
+
+  // If too many upsets, flip some back to chalk
+  while (upsets.length > settings.maxFirstRoundUpsets && upsets.length > 0) {
+    const toFlip = upsets.shift()!;
+    const m = matchups[toFlip.id];
+    if (!m || !m.teamAId || !m.teamBId) continue;
+
+    const teamA = teamsById[m.teamAId];
+    const teamB = teamsById[m.teamBId];
+    if (!teamA || !teamB) continue;
+
+    // Flip winner to the lower-seeded (favorite) team
+    const favorite = teamA.seed <= teamB.seed ? teamA : teamB;
+    m.winnerId = favorite.id;
+    m.isUpset = false;
+    m.confidence = 1 - m.confidence;
+  }
+
+  // Ensure at least one 12-over-5 upset if setting is on
+  if (settings.alwaysPick12Over5) {
+    const has12over5 = r64Matchups.some((m) => {
+      if (!m.winnerId || !m.teamAId || !m.teamBId) return false;
+      const winner = teamsById[m.winnerId];
+      const teamA = teamsById[m.teamAId];
+      const teamB = teamsById[m.teamBId];
+      if (!winner || !teamA || !teamB) return false;
+      const is5v12 = (teamA.seed === 5 && teamB.seed === 12) || (teamA.seed === 12 && teamB.seed === 5);
+      return is5v12 && winner.seed === 12;
+    });
+
+    if (!has12over5) {
+      // Find the closest 5-vs-12 matchup and flip it
+      const candidates = r64Matchups.filter((m) => {
+        if (!m.teamAId || !m.teamBId) return false;
+        const teamA = teamsById[m.teamAId];
+        const teamB = teamsById[m.teamBId];
+        if (!teamA || !teamB) return false;
+        return (teamA.seed === 5 && teamB.seed === 12) || (teamA.seed === 12 && teamB.seed === 5);
+      });
+
+      // Pick the one with the closest probability (best upset candidate)
+      candidates.sort((a, b) => a.confidence - b.confidence);
+      if (candidates.length > 0) {
+        const m = matchups[candidates[0].id];
+        if (m && m.teamAId && m.teamBId) {
+          const teamA = teamsById[m.teamAId];
+          const teamB = teamsById[m.teamBId];
+          if (teamA && teamB) {
+            const twelve = teamA.seed === 12 ? teamA : teamB;
+            m.winnerId = twelve.id;
+            m.isUpset = true;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Post-process bracket with contrarian value picks.
+ *
+ * For each R64/R32 matchup, compute a "value ratio" = true_probability / estimated_public_pick_pct.
+ * Picks with ratio > 1.0 are value picks — boost their selection by flipping some picks to them.
+ *
+ * We estimate public pick percentage using seed as a proxy:
+ * lower seeds are picked more heavily by the public.
+ */
+function applyContrarianValue(
+  matchups: Record<string, Matchup>,
+  teamsById: Record<string, Team>,
+  settings: AdvancedModelSettings
+): void {
+  // Estimate public pick percentage by seed — the public heavily favors lower seeds
+  const publicPickBySeed: Record<number, number> = {
+    1: 0.97, 2: 0.92, 3: 0.85, 4: 0.78,
+    5: 0.64, 6: 0.62, 7: 0.60, 8: 0.50,
+    9: 0.50, 10: 0.40, 11: 0.38, 12: 0.36,
+    13: 0.22, 14: 0.15, 15: 0.08, 16: 0.03,
+  };
+
+  const earlyRounds = Object.values(matchups).filter(
+    (m) => m.round === 'R64' || m.round === 'R32'
+  );
+
+  for (const m of earlyRounds) {
+    if (!m.teamAId || !m.teamBId || !m.winnerId || m.winProbA === null) continue;
+
+    const teamA = teamsById[m.teamAId];
+    const teamB = teamsById[m.teamBId];
+    if (!teamA || !teamB) continue;
+
+    const currentWinner = teamsById[m.winnerId];
+    if (!currentWinner) continue;
+
+    const otherTeam = currentWinner.id === teamA.id ? teamB : teamA;
+    const otherProb = currentWinner.id === teamA.id ? (1 - m.winProbA) : m.winProbA;
+    const otherPublicPick = publicPickBySeed[otherTeam.seed] ?? 0.5;
+
+    // Value ratio for the non-picked team
+    const valueRatio = otherProb / Math.max(otherPublicPick, 0.01);
+
+    // If the other team has contrarian value and a reasonable win probability, consider flipping
+    if (valueRatio > 1.0 && otherProb > 0.3) {
+      // Flip with probability proportional to contrarian strength and value ratio
+      const flipProb = Math.min(0.8, settings.contrarianStrength * (valueRatio - 1.0));
+      if (Math.random() < flipProb) {
+        m.winnerId = otherTeam.id;
+        m.isUpset = otherTeam.seed > currentWinner.seed;
+        m.confidence = otherProb;
+      }
+    }
+  }
 }
