@@ -173,105 +173,6 @@ function getKeyDifferencesFromChalk(
   return diffs;
 }
 
-// ── Section Components ───────────────────────────────────────
-
-function PortfolioSummary({
-  brackets,
-  archetypes: _archetypes,
-  teams,
-  poolSize: _poolSize,
-}: {
-  brackets: BracketState[];
-  archetypes: BracketArchetype[];
-  teams: Record<string, Team>;
-  poolSize: number;
-}) {
-  const stats = useMemo(() => {
-    // Unique champion picks
-    const champTeams = new Set<string>();
-    for (const b of brackets) {
-      const champ = getChampion(b, teams);
-      if (champ) champTeams.add(champ.id);
-    }
-
-    // All unique winner picks across all matchups
-    const uniquePicks = new Set<string>();
-    for (const b of brackets) {
-      for (const m of Object.values(b.matchups)) {
-        if (m.winnerId) uniquePicks.add(`${m.id}:${m.winnerId}`);
-      }
-    }
-
-    // Count divergent games
-    const base = brackets[0];
-    let divergentGames = 0;
-    if (base) {
-      for (const id of Object.keys(base.matchups)) {
-        const winners = brackets.map((b) => b.matchups[id]?.winnerId);
-        if (!winners.every((w) => w === winners[0])) divergentGames++;
-      }
-    }
-
-    // Rough estimate of combined championship coverage
-    // Sum of individual champion probabilities, capped at reasonable values
-    let combinedChampProb = 0;
-    const seenChamps = new Set<string>();
-    for (const b of brackets) {
-      const champMatch = Object.values(b.matchups).find((m) => m.round === 'Championship');
-      if (champMatch?.winnerId && !seenChamps.has(champMatch.winnerId)) {
-        seenChamps.add(champMatch.winnerId);
-        // Use a rough championship probability based on seed
-        const champTeam = teams[champMatch.winnerId];
-        if (champTeam) {
-          // Rough seed-based championship probability
-          const seedProbs: Record<number, number> = {
-            1: 0.18, 2: 0.10, 3: 0.07, 4: 0.05, 5: 0.03, 6: 0.02,
-            7: 0.015, 8: 0.01, 9: 0.008, 10: 0.005, 11: 0.004, 12: 0.003,
-            13: 0.001, 14: 0.0005, 15: 0.0002, 16: 0.0001,
-          };
-          combinedChampProb += seedProbs[champTeam.seed] ?? 0.005;
-        }
-      }
-    }
-    combinedChampProb = Math.min(combinedChampProb, 0.95);
-
-    return {
-      champTeamCount: champTeams.size,
-      uniquePickCount: uniquePicks.size,
-      divergentGames,
-      combinedChampProb,
-    };
-  }, [brackets, teams]);
-
-  return (
-    <div className="bg-gradient-to-r from-[#00274C] to-[#003366] dark:from-gray-800 dark:to-gray-750 rounded-xl p-5 text-white">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg font-bold">Portfolio Strategy</span>
-        <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
-          {brackets.length} brackets
-        </span>
-      </div>
-      <p className="text-sm text-blue-100 dark:text-gray-300 mb-4">
-        Your {brackets.length} brackets cover {stats.champTeamCount} different championship outcomes
-        with {stats.divergentGames} divergent games across the field.
-      </p>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white/10 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold tabular-nums">{stats.champTeamCount}</div>
-          <div className="text-[11px] text-blue-200 dark:text-gray-400 mt-0.5">Champion Picks</div>
-        </div>
-        <div className="bg-white/10 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold tabular-nums">{stats.divergentGames}</div>
-          <div className="text-[11px] text-blue-200 dark:text-gray-400 mt-0.5">Divergent Games</div>
-        </div>
-        <div className="bg-white/10 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold tabular-nums">{(stats.combinedChampProb * 100).toFixed(0)}%</div>
-          <div className="text-[11px] text-blue-200 dark:text-gray-400 mt-0.5">Outcome Coverage</div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function BracketCard({
   bracket,
@@ -534,183 +435,8 @@ function ComparisonTable({
   );
 }
 
-function CoverageAnalysis({
-  brackets,
-  archetypes,
-  teams,
-}: {
-  brackets: BracketState[];
-  archetypes: BracketArchetype[];
-  teams: Record<string, Team>;
-}) {
-  const coverage = useMemo(() => {
-    return brackets.map((b, i) => {
-      const champ = getChampion(b, teams);
-      const ff = getFinalFour(b, teams);
-      const config = ARCHETYPE_CONFIG[archetypes[i] || 'chalk'];
 
-      // Identify what scenarios this bracket is best positioned for
-      const scenarioDesc = champ
-        ? `Wins if ${champ.name} wins it all`
-        : 'No champion selected';
 
-      // Get unique FF teams not in other brackets
-      const otherFFIds = new Set<string>();
-      brackets.forEach((ob, oi) => {
-        if (oi === i) return;
-        getFinalFour(ob, teams).forEach((t) => otherFFIds.add(t.id));
-      });
-      const uniqueFF = ff.filter((t) => !otherFFIds.has(t.id));
-
-      return {
-        archetype: archetypes[i] || ('chalk' as BracketArchetype),
-        config,
-        champion: champ,
-        finalFour: ff,
-        uniqueFF,
-        scenario: scenarioDesc,
-      };
-    });
-  }, [brackets, archetypes, teams]);
-
-  // Combined coverage: unique champions
-  const allChamps = [...new Set(coverage.map((c) => c.champion?.name).filter(Boolean))];
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Coverage Analysis</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          Which championship outcomes your brackets cover.
-        </p>
-      </div>
-      <div className="px-5 py-4 space-y-3">
-        {coverage.map((c, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-750 border border-gray-100 dark:border-gray-700"
-          >
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5"
-              style={{ backgroundColor: c.config.color }}
-            >
-              {c.config.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Bracket {i + 1}: {c.config.label}
-                </span>
-              </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                {c.scenario}
-              </p>
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {c.finalFour.map((t) => (
-                  <span
-                    key={t.id}
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                      c.uniqueFF.some((u) => u.id === t.id)
-                        ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    ({t.seed}) {t.name}
-                    {c.uniqueFF.some((u) => u.id === t.id) && ' *'}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="px-5 py-3 bg-gray-50 dark:bg-gray-750 border-t border-gray-100 dark:border-gray-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          <span className="font-semibold">Combined:</span> Your brackets cover{' '}
-          <span className="font-bold text-gray-700 dark:text-gray-200">{allChamps.length}</span> different
-          championship scenarios ({allChamps.join(', ') || 'none'}).
-          <span className="text-yellow-600 dark:text-yellow-400 ml-1">*</span> = unique Final Four pick not in other brackets.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ScoreComparison({
-  brackets,
-  archetypes,
-}: {
-  brackets: BracketState[];
-  archetypes: BracketArchetype[];
-}) {
-  const scores = useMemo(() => brackets.map(computeExpectedScore), [brackets]);
-  const maxScore = Math.max(...scores);
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Expected Score Comparison</h3>
-      </div>
-      <div className="px-5 py-4 space-y-3">
-        {brackets.map((_, i) => {
-          const arch = archetypes[i] || 'chalk';
-          const config = ARCHETYPE_CONFIG[arch];
-          const score = scores[i];
-          const pct = maxScore > 0 ? (score / maxScore) * 100 : 0;
-
-          return (
-            <div key={i}>
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: config.color }}
-                  />
-                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {config.label}
-                  </span>
-                </div>
-                <span className="text-sm font-bold tabular-nums" style={{ color: config.color }}>
-                  {score.toFixed(1)} pts
-                </span>
-              </div>
-              <div className="h-5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-700 flex items-center justify-end pr-2"
-                  style={{ width: `${pct}%`, backgroundColor: config.color }}
-                >
-                  {pct > 20 && (
-                    <span className="text-[10px] font-bold text-white tabular-nums">
-                      {score.toFixed(1)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function WhyPortfolio({ poolSize, numBrackets }: { poolSize: number; numBrackets: number }) {
-  return (
-    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5">
-      <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">
-        Why This Portfolio Approach?
-      </h3>
-      <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
-        In a <span className="font-bold">{poolSize}-person pool</span>, pure chalk gives you the most likely
-        bracket but near-zero chance of winning because everyone else picks similarly. This portfolio of{' '}
-        <span className="font-bold">{numBrackets} brackets</span> diversifies your risk &mdash; they share
-        high-confidence picks across all brackets but diverge on leverage games where small differences create
-        the biggest scoring swings. By covering multiple championship scenarios and varying upset picks, you
-        maximize the probability that at least one of your entries finishes near the top.
-      </p>
-    </div>
-  );
-}
 
 // ── Portfolio Win Probability Analysis ────────────────────────
 
@@ -759,12 +485,22 @@ function PortfolioAnalysis({
 
   return (
     <div className="bg-gradient-to-br from-[#00274C] via-[#003366] to-[#004a8f] dark:from-gray-800 dark:via-gray-800 dark:to-gray-750 rounded-xl p-5 text-white shadow-lg border border-blue-900/30 dark:border-gray-700">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-lg font-bold tracking-tight">Portfolio Analysis</span>
-        <span className="px-2 py-0.5 bg-white/15 rounded-full text-[11px] font-medium">
-          {numBrackets} brackets / {poolSize}-person pool
-        </span>
+      {/* Recommendation — THE headline */}
+      <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/10 flex items-center gap-4">
+        <div className="text-4xl font-black tabular-nums">{estimate.optimalBracketCount}</div>
+        <div>
+          <div className="text-sm font-bold">
+            {estimate.optimalBracketCount === numBrackets
+              ? 'You have the optimal number of brackets'
+              : estimate.optimalBracketCount > numBrackets
+                ? `Consider adding ${estimate.optimalBracketCount - numBrackets} more bracket${estimate.optimalBracketCount - numBrackets > 1 ? 's' : ''}`
+                : `You could drop ${numBrackets - estimate.optimalBracketCount} bracket${numBrackets - estimate.optimalBracketCount > 1 ? 's' : ''} without losing much edge`
+            }
+          </div>
+          <div className="text-[11px] text-blue-200 dark:text-gray-400 mt-0.5">
+            Optimal for a {poolSize}-person pool — {numBrackets} brackets give you a {(estimate.winProbability * 100).toFixed(1)}% chance of winning ({multiplier.toFixed(1)}x vs one bracket)
+          </div>
+        </div>
       </div>
 
       {/* Probability Cards */}
@@ -903,7 +639,7 @@ function PortfolioAnalysis({
 // ── Main Component ───────────────────────────────────────────
 
 export default function MultiBracketView({ brackets, teams, archetypes, poolSize, simulationResults }: MultiBracketViewProps) {
-  const [expandedCards, setExpandedCards] = useState<Set<number>>(() => new Set([0]));
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(() => new Set());
 
   // Ensure we have enough archetypes for all brackets
   const effectiveArchetypes = useMemo(() => {
@@ -945,15 +681,7 @@ export default function MultiBracketView({ brackets, teams, archetypes, poolSize
 
   return (
     <div className="space-y-4 max-w-5xl mx-auto">
-      {/* Portfolio Summary */}
-      <PortfolioSummary
-        brackets={brackets}
-        archetypes={effectiveArchetypes}
-        teams={teams}
-        poolSize={poolSize}
-      />
-
-      {/* Portfolio Win Probability Analysis */}
+      {/* Portfolio Win Probability — THE key insight, always first */}
       {simulationResults && (
         <PortfolioAnalysis
           brackets={brackets}
@@ -963,7 +691,7 @@ export default function MultiBracketView({ brackets, teams, archetypes, poolSize
         />
       )}
 
-      {/* Per-Bracket Cards */}
+      {/* Per-Bracket Cards — collapsed by default, expand for details */}
       <div className="space-y-3">
         {brackets.map((bracket, i) => (
           <BracketCard
@@ -979,17 +707,8 @@ export default function MultiBracketView({ brackets, teams, archetypes, poolSize
         ))}
       </div>
 
-      {/* Score Comparison */}
-      <ScoreComparison brackets={brackets} archetypes={effectiveArchetypes} />
-
-      {/* Comparison Table */}
+      {/* Where brackets diverge — the most useful comparison */}
       <ComparisonTable brackets={brackets} archetypes={effectiveArchetypes} teams={teams} />
-
-      {/* Coverage Analysis */}
-      <CoverageAnalysis brackets={brackets} archetypes={effectiveArchetypes} teams={teams} />
-
-      {/* Why Portfolio */}
-      <WhyPortfolio poolSize={poolSize} numBrackets={brackets.length} />
     </div>
   );
 }
