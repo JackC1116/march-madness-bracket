@@ -141,15 +141,15 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
   }, [bracket]);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <h3 className="text-sm font-bold text-gray-900">Export Bracket</h3>
-        <p className="text-xs text-gray-400 mt-0.5">Save and share your picks</p>
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Export Bracket</h3>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Save and share your picks</p>
       </div>
 
       {/* Bracket stats */}
-      <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="px-5 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -184,42 +184,42 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
         {/* Print PDF */}
         <button
           onClick={handlePrintPDF}
-          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all group"
+          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
         >
-          <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
             <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
           </div>
-          <span className="text-xs font-bold text-gray-700">Print PDF</span>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Print PDF</span>
           <span className="text-[10px] text-gray-400">Uses browser print dialog</span>
         </button>
 
         {/* JSON export */}
         <button
           onClick={handleJSONExport}
-          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all group"
+          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
         >
-          <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
             <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </div>
-          <span className="text-xs font-bold text-gray-700">Export JSON</span>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Export JSON</span>
           <span className="text-[10px] text-gray-400">Full bracket data file</span>
         </button>
 
         {/* Shareable link */}
         <button
           onClick={handleShareLink}
-          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all group"
+          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
         >
-          <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
             <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
           </div>
-          <span className="text-xs font-bold text-gray-700">
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
             {linkState === 'copied' ? 'Link Copied!' : 'Share Link'}
           </span>
           <span className="text-[10px] text-gray-400">Encodes picks in URL</span>
@@ -228,14 +228,14 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
         {/* Copy summary */}
         <button
           onClick={handleCopySummary}
-          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all group"
+          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
         >
-          <div className="w-10 h-10 rounded-lg bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
             <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
             </svg>
           </div>
-          <span className="text-xs font-bold text-gray-700">
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
             {copyState === 'copied' ? 'Copied!' : 'Copy Summary'}
           </span>
           <span className="text-[10px] text-gray-400">Plain text summary</span>
@@ -245,10 +245,10 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
       {/* Preview of text summary */}
       <div className="px-5 pb-5">
         <details className="group">
-          <summary className="cursor-pointer text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors">
+          <summary className="cursor-pointer text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             Preview text summary
           </summary>
-          <pre className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100 text-[10px] text-gray-500 font-mono overflow-x-auto max-h-64 overflow-y-auto leading-relaxed">
+          <pre className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 text-[10px] text-gray-500 font-mono overflow-x-auto max-h-64 overflow-y-auto leading-relaxed">
             {generateTextSummary(bracket, teams)}
           </pre>
         </details>

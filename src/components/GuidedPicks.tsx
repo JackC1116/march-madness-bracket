@@ -95,9 +95,9 @@ export default function GuidedPicks({
       {/* Main content */}
       <div className="flex-1 max-w-2xl">
         {/* Progress bar */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500">
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
               Game {currentIndex + 1} of {totalGames}
             </span>
             <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ export default function GuidedPicks({
           </div>
 
           {/* Progress track */}
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{ width: `${progress * 100}%`, backgroundColor: '#00274C' }}
@@ -157,7 +157,7 @@ export default function GuidedPicks({
 
         {/* Current matchup card */}
         {currentMatchup && teamA && teamB ? (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
             {/* Round/region header */}
             <div className="px-5 py-3 text-white" style={{ backgroundColor: '#00274C' }}>
               <div className="flex items-center justify-between">
@@ -173,35 +173,35 @@ export default function GuidedPicks({
               {/* Team A */}
               <button
                 onClick={() => onPick(currentMatchup.id, teamA.id)}
-                className={`flex-1 p-5 text-center transition-all border-r border-gray-100 hover:bg-blue-50 ${
-                  currentMatchup.winnerId === teamA.id ? 'bg-blue-50 ring-inset ring-2 ring-blue-300' : ''
+                className={`flex-1 p-5 text-center transition-all border-r border-gray-100 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 ${
+                  currentMatchup.winnerId === teamA.id ? 'bg-blue-50 dark:bg-blue-900/30 ring-inset ring-2 ring-blue-300' : ''
                 }`}
               >
                 <div className="text-3xl font-black tabular-nums mb-1" style={{ color: '#00274C' }}>
                   {teamA.seed}
                 </div>
-                <div className="text-lg font-bold text-gray-900 mb-1">{teamA.name}</div>
-                <div className="text-xs text-gray-400 mb-3">{teamA.conference}</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{teamA.name}</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-3">{teamA.conference}</div>
 
                 {/* Key stats */}
                 <div className="space-y-1.5 text-left max-w-[200px] mx-auto">
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">KenPom</span>
-                    <span className="font-bold text-gray-700">
+                    <span className="font-bold text-gray-700 dark:text-gray-200">
                       #{teamA.kenpom.rank} ({teamA.kenpom.adjEM > 0 ? '+' : ''}{teamA.kenpom.adjEM.toFixed(1)})
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Barthag</span>
-                    <span className="font-bold text-gray-700">{teamA.barttorvik.barthag.toFixed(4)}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">{teamA.barttorvik.barthag.toFixed(4)}</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">NET</span>
-                    <span className="font-bold text-gray-700">#{teamA.net.rank}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">#{teamA.net.rank}</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Q1 Record</span>
-                    <span className="font-bold text-gray-700">{teamA.net.q1Record}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">{teamA.net.q1Record}</span>
                   </div>
                 </div>
 
@@ -224,7 +224,7 @@ export default function GuidedPicks({
 
               {/* VS divider */}
               <div className="flex items-center -mx-4 z-10">
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
                   VS
                 </div>
               </div>
@@ -232,34 +232,34 @@ export default function GuidedPicks({
               {/* Team B */}
               <button
                 onClick={() => onPick(currentMatchup.id, teamB.id)}
-                className={`flex-1 p-5 text-center transition-all border-l border-gray-100 hover:bg-orange-50 ${
-                  currentMatchup.winnerId === teamB.id ? 'bg-orange-50 ring-inset ring-2 ring-orange-300' : ''
+                className={`flex-1 p-5 text-center transition-all border-l border-gray-100 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/30 ${
+                  currentMatchup.winnerId === teamB.id ? 'bg-orange-50 dark:bg-orange-900/30 ring-inset ring-2 ring-orange-300' : ''
                 }`}
               >
                 <div className="text-3xl font-black tabular-nums mb-1" style={{ color: '#FF6B00' }}>
                   {teamB.seed}
                 </div>
-                <div className="text-lg font-bold text-gray-900 mb-1">{teamB.name}</div>
-                <div className="text-xs text-gray-400 mb-3">{teamB.conference}</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{teamB.name}</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-3">{teamB.conference}</div>
 
                 <div className="space-y-1.5 text-left max-w-[200px] mx-auto">
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">KenPom</span>
-                    <span className="font-bold text-gray-700">
+                    <span className="font-bold text-gray-700 dark:text-gray-200">
                       #{teamB.kenpom.rank} ({teamB.kenpom.adjEM > 0 ? '+' : ''}{teamB.kenpom.adjEM.toFixed(1)})
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Barthag</span>
-                    <span className="font-bold text-gray-700">{teamB.barttorvik.barthag.toFixed(4)}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">{teamB.barttorvik.barthag.toFixed(4)}</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">NET</span>
-                    <span className="font-bold text-gray-700">#{teamB.net.rank}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">#{teamB.net.rank}</span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Q1 Record</span>
-                    <span className="font-bold text-gray-700">{teamB.net.q1Record}</span>
+                    <span className="font-bold text-gray-700 dark:text-gray-200">{teamB.net.q1Record}</span>
                   </div>
                 </div>
 
@@ -281,7 +281,7 @@ export default function GuidedPicks({
             </div>
 
             {/* Probability bar */}
-            <div className="px-5 py-3 border-t border-gray-100">
+            <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700">
               <div className="flex h-3 rounded-full overflow-hidden">
                 <div
                   className="transition-all duration-300"
@@ -296,7 +296,7 @@ export default function GuidedPicks({
 
             {/* Narrative */}
             {narrative && (
-              <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
+              <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50">
                 <div className="flex items-start gap-2">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0 mt-0.5" style={{ backgroundColor: '#00274C' }}>
                     AI
@@ -314,7 +314,7 @@ export default function GuidedPicks({
             )}
 
             {/* Navigation */}
-            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={onPrev}
                 disabled={currentIndex === 0}
@@ -350,7 +350,7 @@ export default function GuidedPicks({
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-8 text-center">
             <p className="text-sm text-gray-400">
               {!currentMatchup
                 ? 'All games have been reviewed!'
@@ -371,8 +371,8 @@ export default function GuidedPicks({
 
       {/* Mini bracket sidebar */}
       <div className="w-64 shrink-0 hidden lg:block">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sticky top-4">
-          <h4 className="text-xs font-bold text-gray-700 mb-2">Bracket Overview</h4>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-3 sticky top-4">
+          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">Bracket Overview</h4>
 
           {ROUND_ORDER.map((round) => {
             const roundMatchups = orderedMatchups.filter((m) => m.round === round);
@@ -401,7 +401,7 @@ export default function GuidedPicks({
           })}
 
           {/* Quick stats */}
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="grid grid-cols-2 gap-2 text-center">
               <div>
                 <span className="text-[9px] text-gray-400 block">Picked</span>

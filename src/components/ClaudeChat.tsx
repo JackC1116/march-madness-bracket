@@ -140,7 +140,7 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
 
       {/* Matchup context bar */}
       {matchup && teamA && teamB && (
-        <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 shrink-0">
+        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-700 shrink-0">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               <span className="font-bold" style={{ color: '#00274C' }}>
@@ -180,8 +180,8 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
             >
               ?
             </div>
-            <p className="text-sm text-gray-500 font-medium">Ask Claude anything about the bracket</p>
-            <p className="text-xs text-gray-400 mt-1 max-w-xs">
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Ask Claude anything about the bracket</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 max-w-xs">
               {matchup
                 ? 'Use the quick questions below or type your own.'
                 : 'Select a matchup first, or ask a general tournament question.'}
@@ -200,7 +200,7 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
                 ${
                   msg.role === 'user'
                     ? 'text-white rounded-br-sm'
-                    : 'bg-gray-100 text-gray-700 rounded-bl-sm'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-bl-sm'
                 }
               `}
               style={msg.role === 'user' ? { backgroundColor: '#00274C' } : undefined}
@@ -216,7 +216,7 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-xl rounded-bl-sm px-4 py-3">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-xl rounded-bl-sm px-4 py-3">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -231,14 +231,14 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
 
       {/* Quick questions */}
       {matchup && messages.length < 2 && (
-        <div className="px-4 py-2 border-t border-gray-50 shrink-0">
+        <div className="px-4 py-2 border-t border-gray-50 dark:border-gray-700 shrink-0">
           <div className="flex flex-wrap gap-1.5">
             {QUICK_QUESTIONS.map((q) => (
               <button
                 key={q.label}
                 onClick={() => sendMessage(q.prompt)}
                 disabled={isLoading}
-                className="px-2.5 py-1.5 text-[10px] font-medium border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-40"
+                className="px-2.5 py-1.5 text-[10px] font-medium border border-gray-200 dark:border-gray-600 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 transition-colors disabled:opacity-40"
               >
                 {q.label}
               </button>
@@ -248,7 +248,7 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
       )}
 
       {/* Input */}
-      <div className="px-4 py-3 border-t border-gray-100 shrink-0">
+      <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 shrink-0">
         {!apiKey ? (
           <div className="text-center py-2">
             <p className="text-xs text-gray-400">
@@ -264,7 +264,7 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
               onKeyDown={handleKeyDown}
               placeholder="Ask about this matchup..."
               rows={1}
-              className="flex-1 text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 resize-none text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 max-h-24"
+              className="flex-1 text-sm border border-gray-200 dark:border-gray-600 rounded-xl px-3.5 py-2.5 resize-none text-gray-700 dark:text-gray-200 dark:bg-gray-700 placeholder:text-gray-300 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200 max-h-24"
               disabled={isLoading}
             />
             <button

@@ -18,10 +18,10 @@ function getConfidenceColor(confidence: number): string {
 }
 
 function getSeedColorClasses(seed: number): string {
-  if (seed <= 4) return 'bg-blue-100 text-blue-800';
-  if (seed <= 8) return 'bg-teal-100 text-teal-800';
-  if (seed <= 12) return 'bg-amber-100 text-amber-800';
-  return 'bg-red-100 text-red-800';
+  if (seed <= 4) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+  if (seed <= 8) return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200';
+  if (seed <= 12) return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200';
+  return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
 }
 
 // ── Connector Group ──────────────────────────────────────────
@@ -113,7 +113,7 @@ interface TeamRowProps {
 function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRowProps) {
   if (!team) {
     return (
-      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-600 h-[22px]">
+      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-500 h-[22px]">
         <span className="text-[9px] w-3 text-center">--</span>
         <span className="text-[10px] italic flex-1 truncate">TBD</span>
       </div>
@@ -137,7 +137,7 @@ function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRo
       {isWinner && (
         <span className="text-emerald-600 dark:text-emerald-400 text-[10px] leading-none">&#10003;</span>
       )}
-      <span className="text-[9px] text-gray-400 dark:text-gray-500 tabular-nums w-6 text-right">
+      <span className="text-[9px] text-gray-400 dark:text-gray-400 tabular-nums w-6 text-right">
         {(winProb * 100).toFixed(0)}%
       </span>
       {isLocked && <span className="text-[8px]">🔒</span>}
@@ -170,7 +170,7 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
     <div
       onClick={() => onSelectMatchup(matchup.id)}
       className={`
-        rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-800 shadow-xs dark:shadow-gray-900/50
+        rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-700 shadow-xs dark:shadow-gray-900/50 dark:border dark:border-gray-600
         ${isSelected ? 'ring-2 ring-blue-400 shadow-md' : 'hover:shadow'}
         ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300 dark:border-l-gray-600'}
         w-[130px]

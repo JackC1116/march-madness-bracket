@@ -45,9 +45,9 @@ function ProbabilityBar({ probA }: { probA: number }) {
   return (
     <div className="w-full">
       <div className="flex justify-between text-xs font-bold mb-1">
-        <span style={{ color: '#00274C' }}>{pctA}%</span>
-        <span className="text-gray-400">Win Probability</span>
-        <span style={{ color: '#FF6B00' }}>{pctB}%</span>
+        <span className="text-[#00274C] dark:text-blue-300">{pctA}%</span>
+        <span className="text-gray-400 dark:text-gray-500">Win Probability</span>
+        <span className="text-[#FF6B00] dark:text-orange-300">{pctB}%</span>
       </div>
       <div className="flex h-3 rounded-full overflow-hidden">
         <div
@@ -92,8 +92,8 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
             matchup.winnerId === teamA.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''
           }`}
         >
-          <div className="text-lg font-bold" style={{ color: '#00274C' }}>
-            <span className="text-xs font-medium text-gray-400 mr-1">({teamA.seed})</span>
+          <div className="text-lg font-bold text-[#00274C] dark:text-blue-300">
+            <span className="text-xs font-medium text-gray-400 dark:text-gray-500 mr-1">({teamA.seed})</span>
             {teamA.name}
           </div>
           <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{teamA.conference}</div>
@@ -112,8 +112,8 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
             matchup.winnerId === teamB.id ? 'bg-orange-50 dark:bg-orange-900/30' : ''
           }`}
         >
-          <div className="text-lg font-bold" style={{ color: '#FF6B00' }}>
-            <span className="text-xs font-medium text-gray-400 mr-1">({teamB.seed})</span>
+          <div className="text-lg font-bold text-[#FF6B00] dark:text-orange-300">
+            <span className="text-xs font-medium text-gray-400 dark:text-gray-500 mr-1">({teamB.seed})</span>
             {teamB.name}
           </div>
           <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{teamB.conference}</div>
@@ -185,20 +185,20 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         <div className="flex gap-4">
           <div className="flex-1">
             <div className="flex flex-wrap gap-1">
-              <span className="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-700 font-medium">
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium">
                 {teamA.profile.style}
               </span>
-              <span className="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-700 font-medium">
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium">
                 {teamA.profile.tempo} tempo
               </span>
             </div>
           </div>
           <div className="flex-1 text-right">
             <div className="flex flex-wrap justify-end gap-1">
-              <span className="px-2 py-0.5 text-[10px] rounded-full bg-orange-50 text-orange-700 font-medium">
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-orange-50 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-medium">
                 {teamB.profile.style}
               </span>
-              <span className="px-2 py-0.5 text-[10px] rounded-full bg-orange-50 text-orange-700 font-medium">
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-orange-50 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-medium">
                 {teamB.profile.tempo} tempo
               </span>
             </div>
