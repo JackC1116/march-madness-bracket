@@ -327,7 +327,7 @@ function BracketApp() {
 
       <div className="flex flex-col lg:flex-row">
         {/* Left Sidebar */}
-        <aside className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-[calc(100vh-64px)] shrink-0">
+        <aside className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-screen lg:sticky lg:top-0 shrink-0">
           {/* Sidebar tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
@@ -570,7 +570,7 @@ function BracketApp() {
         </main>
 
         {/* Right Sidebar — Matchup Detail / Claude Chat (only when matchup selected) */}
-        <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-[calc(100vh-64px)] shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
+        <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-screen lg:sticky lg:top-0 shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
           {selectedMatchup && selectedTeamA && selectedTeamB ? (
             <div className="space-y-0">
               <MatchupCard

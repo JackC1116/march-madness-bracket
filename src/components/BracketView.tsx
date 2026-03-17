@@ -440,7 +440,7 @@ export default function BracketView({
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="inline-block min-w-max px-1 py-1">
+      <div className="inline-block min-w-max px-2 py-1">
         {/* First Four */}
         {firstFourGames.length > 0 && (
           <div className="mb-2 pb-1 border-b border-dashed border-gray-200 dark:border-gray-700">
