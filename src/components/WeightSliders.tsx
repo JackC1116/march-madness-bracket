@@ -211,18 +211,19 @@ export default function WeightSliders({ weights, onChange, iterations, onIterati
           <input
             type="range"
             min={1000}
-            max={50000}
+            max={100000}
             step={1000}
             value={iterations}
             onChange={(e) => onIterationsChange(parseInt(e.target.value, 10))}
             className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, #00274C ${((iterations - 1000) / 49000) * 100}%, #e5e7eb ${((iterations - 1000) / 49000) * 100}%)`,
+              background: `linear-gradient(to right, #00274C ${((iterations - 1000) / 99000) * 100}%, #e5e7eb ${((iterations - 1000) / 99000) * 100}%)`,
             }}
           />
-          <p className="text-[10px] text-gray-400 mt-1">
-            More iterations = more accurate, slower
-          </p>
+          <div className="flex justify-between mt-1">
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">Quick (1K)</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">Silver Bulletin (100K)</span>
+          </div>
         </div>
       )}
 
