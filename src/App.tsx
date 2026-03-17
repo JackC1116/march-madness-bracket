@@ -269,7 +269,7 @@ function BracketApp() {
   const canRedo = undoneActions.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
+    <div className="h-screen flex flex-col bg-slate-50 dark:bg-gray-900 overflow-hidden">
       {showConfetti && <Confetti />}
       {showReportCard && (
         <BracketReportCard
@@ -346,9 +346,9 @@ function BracketApp() {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0">
         {/* Left Sidebar */}
-        <aside className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-screen lg:sticky lg:top-0 shrink-0">
+        <aside className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0">
           {/* Sidebar tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
@@ -491,7 +491,7 @@ function BracketApp() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-x-auto">
+        <main className="flex-1 overflow-auto">
           {/* Simulation status bar with progress */}
           {isSimulating && (
             <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-sm text-amber-700 dark:text-amber-300">
@@ -642,7 +642,7 @@ function BracketApp() {
         </main>
 
         {/* Right Sidebar — Matchup Detail / Claude Chat (only when matchup selected) */}
-        <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto lg:h-screen lg:sticky lg:top-0 shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
+        <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
           {selectedMatchup && selectedTeamA && selectedTeamB ? (
             <div className="space-y-0">
               <MatchupCard
