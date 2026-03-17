@@ -626,6 +626,7 @@ function BracketApp() {
                 teams={teamsMap}
                 archetypes={poolConfig.archetypes}
                 poolSize={poolConfig.poolSize}
+                simulationResults={simulationResults ?? undefined}
               />
             </div>
           ) : (

@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
-import type { BracketState, Team, BracketArchetype, Round, Matchup } from '../types';
+import type { BracketState, Team, BracketArchetype, Round, Matchup, SimulationResults } from '../types';
+import { estimatePortfolioWinProbability, computeWinProbCurve } from '../engine/multi-bracket';
 
 interface MultiBracketViewProps {
   brackets: BracketState[];
   teams: Record<string, Team>;
   archetypes: BracketArchetype[];
   poolSize: number;
+  simulationResults?: SimulationResults;
 }
 
 // ── Archetype configuration ──────────────────────────────────
@@ -710,9 +712,197 @@ function WhyPortfolio({ poolSize, numBrackets }: { poolSize: number; numBrackets
   );
 }
 
+// ── Portfolio Win Probability Analysis ────────────────────────
+
+function PortfolioAnalysis({
+  brackets,
+  teams,
+  poolSize,
+  simulationResults,
+}: {
+  brackets: BracketState[];
+  teams: Record<string, Team>;
+  poolSize: number;
+  simulationResults: SimulationResults;
+}) {
+  const estimate = useMemo(
+    () => estimatePortfolioWinProbability(brackets, poolSize, simulationResults, teams),
+    [brackets, poolSize, simulationResults, teams]
+  );
+
+  const curve = useMemo(
+    () => computeWinProbCurve(brackets, poolSize, simulationResults, teams, 10),
+    [brackets, poolSize, simulationResults, teams]
+  );
+
+  const numBrackets = brackets.length;
+  const avgPerBracket = estimate.perBracketWinProb.length > 0
+    ? estimate.perBracketWinProb.reduce((s, p) => s + p, 0) / estimate.perBracketWinProb.length
+    : 0;
+  const singleBracketProb = estimate.perBracketWinProb[0] ?? (1 / poolSize);
+  const multiplier = singleBracketProb > 0 ? estimate.winProbability / singleBracketProb : 1;
+
+  const entryFee = 10;
+  const totalCost = numBrackets * entryFee;
+  const prizePool = poolSize * entryFee;
+  const expectedReturn = estimate.winProbability * prizePool;
+
+  // Chart: find max probability in curve for scaling
+  const maxCurveProb = Math.max(...curve.map((c) => c.probability), 0.01);
+
+  // Determine if adding more brackets helps
+  const currentCurveEntry = curve.find((c) => c.n === numBrackets);
+  const nextCurveEntry = curve.find((c) => c.n === numBrackets + 1);
+  const marginalGain = currentCurveEntry && nextCurveEntry
+    ? (nextCurveEntry.probability - currentCurveEntry.probability) * 100
+    : 0;
+
+  return (
+    <div className="bg-gradient-to-br from-[#00274C] via-[#003366] to-[#004a8f] dark:from-gray-800 dark:via-gray-800 dark:to-gray-750 rounded-xl p-5 text-white shadow-lg border border-blue-900/30 dark:border-gray-700">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-lg font-bold tracking-tight">Portfolio Analysis</span>
+        <span className="px-2 py-0.5 bg-white/15 rounded-full text-[11px] font-medium">
+          {numBrackets} brackets / {poolSize}-person pool
+        </span>
+      </div>
+
+      {/* Probability Cards */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
+          <div className="text-[10px] uppercase tracking-wider text-blue-200 dark:text-gray-400 mb-1">
+            Win Probability
+          </div>
+          <div className="text-3xl font-extrabold tabular-nums">
+            {(estimate.winProbability * 100).toFixed(1)}%
+          </div>
+          <div className="text-[10px] text-blue-300 dark:text-gray-500 mt-1">at least one wins</div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
+          <div className="text-[10px] uppercase tracking-wider text-blue-200 dark:text-gray-400 mb-1">
+            Top 10%
+          </div>
+          <div className="text-3xl font-extrabold tabular-nums">
+            {(estimate.top10Probability * 100).toFixed(0)}%
+          </div>
+          <div className="text-[10px] text-blue-300 dark:text-gray-500 mt-1">one finishes top 10%</div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
+          <div className="text-[10px] uppercase tracking-wider text-blue-200 dark:text-gray-400 mb-1">
+            Top 25%
+          </div>
+          <div className="text-3xl font-extrabold tabular-nums">
+            {(estimate.top25Probability * 100).toFixed(0)}%
+          </div>
+          <div className="text-[10px] text-blue-300 dark:text-gray-500 mt-1">one finishes top 25%</div>
+        </div>
+      </div>
+
+      {/* Key insights */}
+      <div className="bg-white/5 rounded-lg p-4 mb-5 border border-white/10 space-y-1.5">
+        <p className="text-sm text-blue-100 dark:text-gray-300">
+          With <span className="font-bold text-white">{numBrackets} brackets</span> in a{' '}
+          <span className="font-bold text-white">{poolSize}-person pool</span>:
+        </p>
+        <ul className="text-sm text-blue-100 dark:text-gray-300 space-y-1 ml-1">
+          <li className="flex items-start gap-2">
+            <span className="text-blue-300 mt-0.5">&#8226;</span>
+            Each bracket: ~{(avgPerBracket * 100).toFixed(1)}% chance of winning
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-300 mt-0.5">&#8226;</span>
+            Portfolio: ~{(estimate.winProbability * 100).toFixed(1)}% chance at least one wins
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-300 mt-0.5">&#8226;</span>
+            <span className="font-semibold text-white">{multiplier.toFixed(1)}x</span> better than submitting one bracket
+          </li>
+        </ul>
+      </div>
+
+      {/* Optimal bracket count + ROI */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+          <div className="text-[10px] uppercase tracking-wider text-blue-200 dark:text-gray-400 mb-1">
+            Optimal Brackets
+          </div>
+          <div className="text-xl font-bold">{estimate.optimalBracketCount}</div>
+          <div className="text-[10px] text-blue-300 dark:text-gray-500 mt-0.5">
+            adding more has {marginalGain < 1 ? '<1' : `~${marginalGain.toFixed(1)}`}% gain
+          </div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+          <div className="text-[10px] uppercase tracking-wider text-blue-200 dark:text-gray-400 mb-1">
+            Expected ROI
+          </div>
+          <div className="text-xl font-bold">
+            {estimate.expectedROI.toFixed(2)}x
+          </div>
+          <div className="text-[10px] text-blue-300 dark:text-gray-500 mt-0.5 leading-tight">
+            ${entryFee} x {numBrackets} = ${totalCost} in / ~${expectedReturn.toFixed(0)} expected
+          </div>
+        </div>
+      </div>
+
+      {/* ROI detail line */}
+      <div className="bg-white/5 rounded-lg px-4 py-2.5 mb-5 border border-white/10 text-xs text-blue-200 dark:text-gray-400">
+        Prize pool: <span className="font-semibold text-white">${prizePool.toLocaleString()}</span>{' '}
+        ({poolSize} x ${entryFee}) &middot; Expected return:{' '}
+        <span className="font-semibold text-white">${expectedReturn.toFixed(2)}</span>{' '}
+        ({estimate.expectedROI >= 1 ? (
+          <span className="text-green-300">+{((estimate.expectedROI - 1) * 100).toFixed(0)}%</span>
+        ) : (
+          <span className="text-red-300">{((estimate.expectedROI - 1) * 100).toFixed(0)}%</span>
+        )})
+      </div>
+
+      {/* Diminishing returns chart */}
+      <div>
+        <div className="text-xs font-semibold text-blue-200 dark:text-gray-400 uppercase tracking-wider mb-3">
+          Win Probability vs. Number of Brackets
+        </div>
+        <div className="flex items-end gap-1.5 h-32">
+          {curve.map((point) => {
+            const heightPct = maxCurveProb > 0 ? (point.probability / maxCurveProb) * 100 : 0;
+            const isCurrentCount = point.n === numBrackets;
+            return (
+              <div key={point.n} className="flex-1 flex flex-col items-center gap-1">
+                {/* Probability label */}
+                <div className={`text-[9px] tabular-nums ${isCurrentCount ? 'text-white font-bold' : 'text-blue-300 dark:text-gray-500'}`}>
+                  {(point.probability * 100).toFixed(1)}%
+                </div>
+                {/* Bar */}
+                <div className="w-full flex-1 flex items-end">
+                  <div
+                    className={`w-full rounded-t transition-all duration-500 ${
+                      isCurrentCount
+                        ? 'bg-gradient-to-t from-blue-400 to-blue-200 shadow-lg shadow-blue-400/30'
+                        : point.n <= numBrackets
+                          ? 'bg-blue-400/50'
+                          : 'bg-white/15'
+                    }`}
+                    style={{ height: `${Math.max(heightPct, 4)}%` }}
+                  />
+                </div>
+                {/* Count label */}
+                <div className={`text-[10px] tabular-nums ${isCurrentCount ? 'text-white font-bold' : 'text-blue-300 dark:text-gray-500'}`}>
+                  {point.n}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="text-[10px] text-blue-300/60 dark:text-gray-600 text-center mt-1.5">
+          Number of brackets
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────
 
-export default function MultiBracketView({ brackets, teams, archetypes, poolSize }: MultiBracketViewProps) {
+export default function MultiBracketView({ brackets, teams, archetypes, poolSize, simulationResults }: MultiBracketViewProps) {
   const [expandedCards, setExpandedCards] = useState<Set<number>>(() => new Set([0]));
 
   // Ensure we have enough archetypes for all brackets
@@ -762,6 +952,16 @@ export default function MultiBracketView({ brackets, teams, archetypes, poolSize
         teams={teams}
         poolSize={poolSize}
       />
+
+      {/* Portfolio Win Probability Analysis */}
+      {simulationResults && (
+        <PortfolioAnalysis
+          brackets={brackets}
+          teams={teams}
+          poolSize={poolSize}
+          simulationResults={simulationResults}
+        />
+      )}
 
       {/* Per-Bracket Cards */}
       <div className="space-y-3">

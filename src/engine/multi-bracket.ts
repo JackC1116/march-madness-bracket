@@ -419,6 +419,198 @@ export async function generateMultiBrackets(
   return brackets;
 }
 
+// ── Portfolio Win Probability ────────────────────────────────
+
+export interface PortfolioWinEstimate {
+  winProbability: number;         // P(at least one bracket wins pool)
+  top10Probability: number;       // P(at least one bracket in top 10%)
+  top25Probability: number;       // P(at least one bracket in top 25%)
+  optimalBracketCount: number;    // Recommended # of brackets for this pool
+  perBracketWinProb: number[];    // Individual bracket win probabilities
+  expectedROI: number;            // If entry fee = $10, expected return per dollar
+}
+
+/**
+ * Estimate the probability that at least one bracket in the portfolio wins
+ * or finishes in the top percentile of a pool.
+ *
+ * Approach (simplified but reasonable):
+ * - Each bracket's "win probability" ~ 1/poolSize * diversityBonus
+ * - diversityBonus accounts for how differentiated the bracket is from chalk
+ * - Portfolio probability uses the complement formula with a correlation discount
+ * - Correlation is estimated from shared picks between brackets
+ */
+export function estimatePortfolioWinProbability(
+  brackets: BracketState[],
+  poolSize: number,
+  _simResults: SimulationResults,
+  _teams: Record<string, Team>,
+): PortfolioWinEstimate {
+  const N = brackets.length;
+  if (N === 0 || poolSize <= 0) {
+    return {
+      winProbability: 0,
+      top10Probability: 0,
+      top25Probability: 0,
+      optimalBracketCount: 1,
+      perBracketWinProb: [],
+      expectedROI: 0,
+    };
+  }
+
+  // --- Compute per-bracket uniqueness (how far from chalk) ---
+  // Use the first bracket as the "chalk" reference (index 0 is typically chalk)
+  const chalkBracket = brackets[0];
+  const totalMatchups = Object.keys(chalkBracket.matchups).length;
+
+  const perBracketUniqueness: number[] = brackets.map((b) => {
+    let diffCount = 0;
+    for (const id of Object.keys(chalkBracket.matchups)) {
+      if (b.matchups[id]?.winnerId !== chalkBracket.matchups[id]?.winnerId) {
+        diffCount++;
+      }
+    }
+    // Uniqueness is fraction of picks that differ from chalk, 0..1
+    return totalMatchups > 0 ? diffCount / totalMatchups : 0;
+  });
+
+  // --- Per-bracket win probability ---
+  const baseSingleWinProb = 1 / poolSize;
+
+  const perBracketWinProb: number[] = perBracketUniqueness.map((uniqueness) => {
+    // Diversity bonus: more unique brackets have a slight edge in large pools
+    const diversityBonus = 1 + uniqueness * 0.3;
+    return Math.min(baseSingleWinProb * diversityBonus, 0.99);
+  });
+
+  // --- Correlation factor ---
+  // Compute average shared-pick ratio across all bracket pairs
+  let totalSharedRatio = 0;
+  let pairCount = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = i + 1; j < N; j++) {
+      let sharedPicks = 0;
+      for (const id of Object.keys(brackets[i].matchups)) {
+        if (brackets[i].matchups[id]?.winnerId === brackets[j].matchups[id]?.winnerId) {
+          sharedPicks++;
+        }
+      }
+      totalSharedRatio += totalMatchups > 0 ? sharedPicks / totalMatchups : 1;
+      pairCount++;
+    }
+  }
+  const avgSharedRatio = pairCount > 0 ? totalSharedRatio / pairCount : 1;
+  const correlationFactor = 1 - avgSharedRatio * 0.7;
+
+  // Effective independent brackets
+  const effectiveIndependentBrackets = N * Math.max(correlationFactor, 0.1);
+
+  // --- Portfolio probabilities ---
+  const avgWinProb = perBracketWinProb.reduce((s, p) => s + p, 0) / N;
+  const winProbability = 1 - Math.pow(1 - avgWinProb, effectiveIndependentBrackets);
+
+  // Top 10%: each bracket has roughly poolSize*0.1 "winning" slots
+  const top10Base = Math.min(0.1 * (1 + avgSharedRatio * 0.2), 0.99);
+  const top10Probability = 1 - Math.pow(1 - top10Base, effectiveIndependentBrackets);
+
+  // Top 25%: each bracket has roughly poolSize*0.25 "winning" slots
+  const top25Base = Math.min(0.25 * (1 + avgSharedRatio * 0.1), 0.99);
+  const top25Probability = 1 - Math.pow(1 - top25Base, effectiveIndependentBrackets);
+
+  // --- Optimal bracket count ---
+  // Find where marginal win probability gain < 1/poolSize
+  const marginalThreshold = 1 / poolSize;
+  let optimalBracketCount = 1;
+  let prevProb = 1 - Math.pow(1 - avgWinProb, 1 * Math.max(correlationFactor, 0.1));
+  for (let k = 2; k <= 20; k++) {
+    const kProb = 1 - Math.pow(1 - avgWinProb, k * Math.max(correlationFactor, 0.1));
+    const marginalGain = kProb - prevProb;
+    if (marginalGain < marginalThreshold) break;
+    optimalBracketCount = k;
+    prevProb = kProb;
+  }
+  // Floor based on pool size heuristics
+  if (poolSize <= 25) optimalBracketCount = Math.max(optimalBracketCount, 1);
+  else if (poolSize <= 100) optimalBracketCount = Math.max(optimalBracketCount, 3);
+  else optimalBracketCount = Math.max(optimalBracketCount, 5);
+  optimalBracketCount = Math.min(optimalBracketCount, 10);
+
+  // --- Expected ROI ---
+  // Assuming entry fee = $10, prize pool = poolSize * $10, winner-take-all
+  const prizePool = poolSize * 10;
+  const totalCost = N * 10;
+  const expectedReturn = winProbability * prizePool;
+  const expectedROI = totalCost > 0 ? expectedReturn / totalCost : 0;
+
+  return {
+    winProbability,
+    top10Probability,
+    top25Probability,
+    optimalBracketCount,
+    perBracketWinProb,
+    expectedROI,
+  };
+}
+
+/**
+ * Compute win probability curve: for bracket counts 1..maxN, compute portfolio win prob.
+ * Used for the diminishing returns chart.
+ */
+export function computeWinProbCurve(
+  brackets: BracketState[],
+  poolSize: number,
+  _simResults: SimulationResults,
+  _teams: Record<string, Team>,
+  maxN: number = 10,
+): { n: number; probability: number }[] {
+  if (brackets.length === 0 || poolSize <= 0) return [];
+
+  // Reuse the same logic from estimatePortfolioWinProbability
+  const chalkBracket = brackets[0];
+  const totalMatchups = Object.keys(chalkBracket.matchups).length;
+
+  const perBracketUniqueness: number[] = brackets.map((b) => {
+    let diffCount = 0;
+    for (const id of Object.keys(chalkBracket.matchups)) {
+      if (b.matchups[id]?.winnerId !== chalkBracket.matchups[id]?.winnerId) {
+        diffCount++;
+      }
+    }
+    return totalMatchups > 0 ? diffCount / totalMatchups : 0;
+  });
+
+  const baseSingleWinProb = 1 / poolSize;
+  const perBracketWinProb = perBracketUniqueness.map((u) =>
+    Math.min(baseSingleWinProb * (1 + u * 0.3), 0.99)
+  );
+
+  let totalSharedRatio = 0;
+  let pairCount = 0;
+  const N = brackets.length;
+  for (let i = 0; i < N; i++) {
+    for (let j = i + 1; j < N; j++) {
+      let sharedPicks = 0;
+      for (const id of Object.keys(brackets[i].matchups)) {
+        if (brackets[i].matchups[id]?.winnerId === brackets[j].matchups[id]?.winnerId) {
+          sharedPicks++;
+        }
+      }
+      totalSharedRatio += totalMatchups > 0 ? sharedPicks / totalMatchups : 1;
+      pairCount++;
+    }
+  }
+  const avgSharedRatio = pairCount > 0 ? totalSharedRatio / pairCount : 1;
+  const correlationFactor = Math.max(1 - avgSharedRatio * 0.7, 0.1);
+  const avgWinProb = perBracketWinProb.reduce((s, p) => s + p, 0) / Math.max(N, 1);
+
+  const curve: { n: number; probability: number }[] = [];
+  for (let k = 1; k <= maxN; k++) {
+    const prob = 1 - Math.pow(1 - avgWinProb, k * correlationFactor);
+    curve.push({ n: k, probability: prob });
+  }
+  return curve;
+}
+
 /**
  * Deep-clone a BracketState to avoid mutation between bracket variations.
  */
