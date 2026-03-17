@@ -434,6 +434,7 @@ function BracketApp() {
                     simulationResults={simulationResults}
                     teams={teamsMap}
                     bracket={bracket}
+                    scoringSystem={poolConfig.scoringSystem}
                   />
                 ) : (
                   <div className="text-center py-12 text-gray-400">
@@ -578,6 +579,8 @@ function BracketApp() {
                 teamB={selectedTeamB}
                 narrative={selectedNarrative}
                 onPick={(winnerId) => pickWinner(selectedMatchup.id, winnerId)}
+                simulationResults={simulationResults ?? undefined}
+                scoringSystem={poolConfig.scoringSystem}
               />
               <ClaudeChat
                 matchupId={selectedMatchupId}

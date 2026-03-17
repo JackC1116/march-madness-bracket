@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Matchup, Team, MatchupNarrative } from '../types';
+import type { Matchup, Team, MatchupNarrative, SimulationResults, ScoringSystem, Round } from '../types';
 
 function hashCode(str: string): number {
   let hash = 0;
@@ -18,12 +18,26 @@ function estimatePublicPickPct(teamAId: string, seedA: number, teamBId: string, 
   return Math.min(0.97, Math.max(0.03, base + noise));
 }
 
+const ROUNDS_ORDER: Round[] = ['R64', 'R32', 'Sweet 16', 'Elite 8', 'Final Four', 'Championship'];
+
+function getRoundIndex(round: Round): number {
+  return ROUNDS_ORDER.indexOf(round);
+}
+
+function getNextRound(round: Round): Round | null {
+  const idx = getRoundIndex(round);
+  if (idx < 0 || idx >= ROUNDS_ORDER.length - 1) return null;
+  return ROUNDS_ORDER[idx + 1];
+}
+
 interface MatchupCardProps {
   matchup: Matchup;
   teamA: Team;
   teamB: Team;
   narrative?: MatchupNarrative;
   onPick: (winnerId: string) => void;
+  simulationResults?: SimulationResults;
+  scoringSystem?: ScoringSystem;
 }
 
 interface StatRowProps {
@@ -93,7 +107,128 @@ function ProbabilityBar({ probA }: { probA: number }) {
   );
 }
 
-export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }: MatchupCardProps) {
+function GameAnalytics({
+  matchup,
+  teamA,
+  teamB,
+  simulationResults,
+  scoringSystem,
+  winProbA,
+}: {
+  matchup: Matchup;
+  teamA: Team;
+  teamB: Team;
+  simulationResults: SimulationResults;
+  scoringSystem?: ScoringSystem;
+  winProbA: number;
+}) {
+  const analytics = useMemo(() => {
+    const roundIdx = getRoundIndex(matchup.round as Round);
+    const pointsForRound = scoringSystem
+      ? scoringSystem.pointsByRound[roundIdx] ?? 0
+      : [1, 2, 4, 8, 16, 32][roundIdx] ?? 0;
+
+    // Expected value for each team pick
+    const evA = winProbA * pointsForRound;
+    const evB = (1 - winProbA) * pointsForRound;
+
+    // Path probability: probability each team has reached this round
+    const trA = simulationResults.teamResults[teamA.id];
+    const trB = simulationResults.teamResults[teamB.id];
+    const pathProbA = trA?.roundProbabilities[matchup.round] ?? 0;
+    const pathProbB = trB?.roundProbabilities[matchup.round] ?? 0;
+
+    // Leverage: how much this game matters for bracket
+    // |P(teamA reaches next round) - P(teamB reaches next round)|
+    const nextRound = getNextRound(matchup.round as Round);
+    let leverage = 0;
+    if (nextRound && trA && trB) {
+      const probANext = trA.roundProbabilities[nextRound] ?? 0;
+      const probBNext = trB.roundProbabilities[nextRound] ?? 0;
+      leverage = Math.abs(probANext - probBNext);
+    }
+    // If no next round (Championship), use championship probability
+    if (!nextRound && trA && trB) {
+      leverage = Math.abs(trA.championshipProb - trB.championshipProb);
+    }
+
+    return { evA, evB, pathProbA, pathProbB, leverage, pointsForRound };
+  }, [matchup, teamA, teamB, simulationResults, scoringSystem, winProbA]);
+
+  const leverageLabel = analytics.leverage < 0.15 ? 'High' : analytics.leverage < 0.35 ? 'Medium' : 'Low';
+  const leverageColor = analytics.leverage < 0.15
+    ? 'text-red-500 bg-red-50 dark:bg-red-900/30'
+    : analytics.leverage < 0.35
+    ? 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30'
+    : 'text-green-500 bg-green-50 dark:bg-green-900/30';
+
+  return (
+    <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+      <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+        Game Analytics
+      </h3>
+
+      {/* Expected Points */}
+      <div className="flex items-center justify-between py-1.5 border-b border-gray-50 dark:border-gray-700">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Expected Value</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold tabular-nums text-[#00274C] dark:text-blue-300">
+            +{analytics.evA.toFixed(1)} pts
+          </span>
+          <span className="text-[10px] text-gray-300 dark:text-gray-600">|</span>
+          <span className="text-xs font-bold tabular-nums text-[#FF6B00] dark:text-orange-300">
+            +{analytics.evB.toFixed(1)} pts
+          </span>
+        </div>
+      </div>
+
+      {/* Leverage Score */}
+      <div className="flex items-center justify-between py-1.5 border-b border-gray-50 dark:border-gray-700">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Leverage</span>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${leverageColor}`}>
+          {leverageLabel}
+          <span className="ml-1 font-normal opacity-75">
+            ({(analytics.leverage * 100).toFixed(0)}% gap)
+          </span>
+        </span>
+      </div>
+
+      {/* Path Probabilities */}
+      <div className="py-1.5 space-y-1">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Path Probability</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <div className="w-16 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[#00274C] dark:bg-blue-400"
+                style={{ width: `${Math.max(analytics.pathProbA * 100, 1)}%` }}
+              />
+            </div>
+            <span className="text-[10px] font-bold tabular-nums text-[#00274C] dark:text-blue-300">
+              {(analytics.pathProbA * 100).toFixed(0)}%
+            </span>
+          </div>
+          <span className="text-[9px] text-gray-400 dark:text-gray-500">
+            reaches {matchup.round === 'Sweet 16' ? 'S16' : matchup.round === 'Elite 8' ? 'E8' : matchup.round === 'Final Four' ? 'FF' : matchup.round}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold tabular-nums text-[#FF6B00] dark:text-orange-300">
+              {(analytics.pathProbB * 100).toFixed(0)}%
+            </span>
+            <div className="w-16 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[#FF6B00] dark:bg-orange-400 ml-auto"
+                style={{ width: `${Math.max(analytics.pathProbB * 100, 1)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick, simulationResults, scoringSystem }: MatchupCardProps) {
   const winProbA = matchup.winProbA ?? 0.5;
 
   // Deterministic public pick percentage
@@ -293,6 +428,18 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
           #{teamA.seed} vs #{teamB.seed}
         </span>
       </div>
+
+      {/* Game Analytics — Tier 1 */}
+      {simulationResults && (
+        <GameAnalytics
+          matchup={matchup}
+          teamA={teamA}
+          teamB={teamB}
+          simulationResults={simulationResults}
+          scoringSystem={scoringSystem}
+          winProbA={winProbA}
+        />
+      )}
 
       {/* Claude narrative */}
       {narrative && (
