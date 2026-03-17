@@ -90,7 +90,11 @@ function BracketApp() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard shortcuts for undo/redo
+  // Secret expert mode: press "iddqd" (like DOOM) to load ideal settings
+  const secretBufferRef = useRef('');
+  const secretTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keyboard shortcuts for undo/redo + secret code
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
@@ -105,6 +109,41 @@ function BracketApp() {
       } else if (ctrlOrCmd && e.key === 'y') {
         e.preventDefault();
         dispatch({ type: 'REDO' });
+      }
+
+      // Secret code: type "iddqd" to activate expert settings
+      if (!ctrlOrCmd && !e.altKey && e.key.length === 1) {
+        secretBufferRef.current += e.key.toLowerCase();
+        if (secretTimerRef.current) clearTimeout(secretTimerRef.current);
+        secretTimerRef.current = setTimeout(() => { secretBufferRef.current = ''; }, 2000);
+
+        if (secretBufferRef.current.endsWith('iddqd')) {
+          secretBufferRef.current = '';
+          // Expert-recommended weights from bracketology research
+          dispatch({ type: 'SET_WEIGHTS', payload: {
+            kenpom: 0.35, barttorvik: 0.15, net: 0.05,
+            sagarin: 0.05, vegas: 0.30, historical: 0.07, experience: 0.03,
+          }});
+          dispatch({ type: 'SET_LUCK_FACTOR', payload: 0 });
+          dispatch({ type: 'SET_ADVANCED_SETTINGS', payload: {
+            ...advancedSettings,
+            championFilter: true, championFilterMinOffenseRank: 40,
+            championFilterMinDefenseRank: 25, championFilterMinSosRank: 23,
+            upsetCalibration: true, minFirstRoundUpsets: 7, maxFirstRoundUpsets: 10,
+            alwaysPick12Over5: true,
+            freeThrowAdjustment: true, freeThrowPenaltyThreshold: 68,
+            tempoTrapezoid: true, tempoMinRange: 64, tempoMaxRange: 72,
+            recencyWeighting: true, recencyWeight: 0.15,
+            contrarianValue: false, contrarianStrength: 0.3,
+          }});
+          // Flash a subtle notification
+          const toast = document.createElement('div');
+          toast.textContent = 'Expert mode activated';
+          toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00274C;color:white;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s';
+          document.body.appendChild(toast);
+          requestAnimationFrame(() => { toast.style.opacity = '1'; });
+          setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
+        }
       }
     };
 

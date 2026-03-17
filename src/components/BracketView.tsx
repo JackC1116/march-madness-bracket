@@ -126,7 +126,7 @@ interface TeamRowProps {
 function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRowProps) {
   if (!team) {
     return (
-      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-500 h-[22px]">
+      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-500 h-[18px]">
         <span className="text-[9px] w-3 text-center">--</span>
         <span className="text-[10px] italic flex-1 truncate">TBD</span>
       </div>
@@ -137,7 +137,7 @@ function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRo
     <div
       onClick={onClick}
       className={`
-        flex items-center gap-1 px-1.5 py-[3px] transition-colors cursor-pointer h-[22px]
+        flex items-center gap-1 px-1.5 py-[3px] transition-colors cursor-pointer h-[18px]
         ${isWinner ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
       `}
     >
@@ -198,7 +198,7 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
           rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-700 shadow-xs dark:shadow-gray-900/50 dark:border dark:border-gray-600
           ${isSelected ? 'ring-2 ring-blue-400 shadow-md' : 'hover:shadow'}
           ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300 dark:border-l-gray-600'}
-          w-[130px]
+          w-[115px]
         `}
       >
         <TeamRow
@@ -251,8 +251,8 @@ function RegionColumn({
   const sorted = [...matchups].sort((a, b) => a.position - b.position);
   const roundIndex = ROUND_ORDER.indexOf(round);
   // Exponential gap growth so matchups align vertically with their feeders
-  const gap = roundIndex <= 0 ? 2 : roundIndex === 1 ? 26 : roundIndex === 2 ? 74 : 170;
-  const matchupHeight = 47; // approximate height of a MatchupSlot (two 22px rows + 3px border)
+  const gap = roundIndex <= 0 ? 1 : roundIndex === 1 ? 18 : roundIndex === 2 ? 54 : 126;
+  const matchupHeight = 39; // approximate height of a MatchupSlot (two 18px rows + 3px border)
 
   // Group matchups in pairs for connector lines (except last round in region)
   const shouldConnect = !isLastRound && sorted.length >= 2;
@@ -336,7 +336,7 @@ function RegionPair({
   const rightData = grouped[rightRegion] || {};
 
   return (
-    <div className="flex items-center justify-center gap-0 my-2">
+    <div className="flex items-center justify-center gap-0 my-1">
       {/* Left region label */}
       <div className="w-14 flex-shrink-0 text-right pr-1">
         <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#00274C' }}>
@@ -375,7 +375,7 @@ function RegionPair({
           />
         ))}
         {finalFourMatchups.length === 0 && (
-          <div className="w-[130px] h-12 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded flex items-center justify-center text-[10px] text-gray-300 dark:text-gray-600">
+          <div className="w-[115px] h-12 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded flex items-center justify-center text-[10px] text-gray-300 dark:text-gray-600">
             Final Four
           </div>
         )}
@@ -440,14 +440,14 @@ export default function BracketView({
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="inline-block min-w-max px-2 py-3">
+      <div className="inline-block min-w-max px-1 py-1">
         {/* First Four */}
         {firstFourGames.length > 0 && (
-          <div className="mb-4 pb-3 border-b border-dashed border-gray-200 dark:border-gray-700">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-center mb-2" style={{ color: '#FF6B00' }}>
+          <div className="mb-2 pb-1 border-b border-dashed border-gray-200 dark:border-gray-700">
+            <div className="text-[8px] font-bold uppercase tracking-wider text-center mb-1" style={{ color: '#FF6B00' }}>
               First Four — Dayton, OH
             </div>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-2">
               {firstFourGames.sort((a, b) => a.position - b.position).map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
                   <span className="text-[8px] text-gray-400 dark:text-gray-500 uppercase mb-0.5">
@@ -471,17 +471,17 @@ export default function BracketView({
           <div className="w-14 flex-shrink-0" />
           <div className="flex items-center gap-3">
             {regionalRounds.map((r) => (
-              <div key={`l-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              <div key={`l-${r}`} className="w-[115px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 {r}
               </div>
             ))}
           </div>
-          <div className="mx-2 w-[130px] text-center text-[9px] font-semibold uppercase tracking-wider" style={{ color: '#FF6B00' }}>
+          <div className="mx-2 w-[115px] text-center text-[9px] font-semibold uppercase tracking-wider" style={{ color: '#FF6B00' }}>
             Final Four
           </div>
           <div className="flex items-center gap-3">
             {[...regionalRounds].reverse().map((r) => (
-              <div key={`r-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              <div key={`r-${r}`} className="w-[115px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 {r}
               </div>
             ))}
@@ -503,7 +503,7 @@ export default function BracketView({
         />
 
         {/* Championship */}
-        <div className="flex justify-center my-4">
+        <div className="flex justify-center my-2">
           <div className="flex flex-col items-center gap-1.5">
             <div
               className="text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full text-white"
