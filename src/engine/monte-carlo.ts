@@ -123,7 +123,8 @@ function simulateOnce(
   teamsById: Record<string, Team>,
   _cprMap: Record<string, number>,
   regionBrackets: Record<Region, BracketSlot[][]>,
-  historicalTrends: HistoricalTrends | undefined
+  historicalTrends: HistoricalTrends | undefined,
+  advancedSettings?: AdvancedModelSettings
 ): Record<string, number> {
   const roundReached: Record<string, number> = {};
 
@@ -147,7 +148,7 @@ function simulateOnce(
       const prob = computeWinProbability(
         slotA.team, slotB.team,
         slotA.cpr, slotB.cpr,
-        'R64', historicalTrends
+        'R64', historicalTrends, advancedSettings
       );
       const aWins = simulateMatchup(prob);
       const winner = aWins ? slotA : slotB;
