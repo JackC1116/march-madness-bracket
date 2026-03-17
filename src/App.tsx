@@ -83,6 +83,8 @@ function BracketApp() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [showReportCard, setShowReportCard] = useState(false);
+  const [generatingMulti, setGeneratingMulti] = useState(false);
+  const [multiProgress, setMultiProgress] = useState({ completed: 0, total: 0 });
   const prevChampionRef = useRef<string | null>(null);
 
   // Initialize bracket on mount
@@ -211,14 +213,20 @@ function BracketApp() {
   }, [simulationResults, upsetAppetite, poolConfig.scoringSystem, weights, biases, claudeBiases, advancedSettings, dispatch]);
 
   // Generate multi brackets
-  const handleGenerateMulti = useCallback(() => {
+  const handleGenerateMulti = useCallback(async () => {
     if (!simulationResults) return;
-    const brackets = generateMultiBrackets(
+    setGeneratingMulti(true);
+    setMultiProgress({ completed: 0, total: poolConfig.numBrackets });
+    // Yield a frame so the loading UI renders before computation starts
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const brackets = await generateMultiBrackets(
       TEAMS, simulationResults, poolConfig,
       weights, biases, MATCHUP_ODDS, HISTORICAL_TRENDS,
       claudeBiases, advancedSettings,
+      (completed, total) => setMultiProgress({ completed, total }),
     );
     dispatch({ type: 'SET_MULTI_BRACKETS', payload: brackets });
+    setGeneratingMulti(false);
   }, [simulationResults, poolConfig, weights, biases, claudeBiases, advancedSettings, dispatch]);
 
   // Claude bias handler
@@ -426,10 +434,14 @@ function BracketApp() {
                   {mode === 'multi' && (
                     <button
                       onClick={handleGenerateMulti}
-                      disabled={!simulationResults || isSimulating}
+                      disabled={!simulationResults || isSimulating || generatingMulti}
                       className="w-full py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#e06000] disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
-                      {isSimulating ? 'Simulating...' : `Generate ${poolConfig.numBrackets} Brackets`}
+                      {generatingMulti
+                        ? `Generating bracket ${multiProgress.completed}/${multiProgress.total}...`
+                        : isSimulating
+                          ? 'Simulating...'
+                          : `Generate ${poolConfig.numBrackets} Brackets`}
                     </button>
                   )}
                   <button
@@ -579,12 +591,41 @@ function BracketApp() {
                 onAutoFill={autoFillBracket}
               />
             </div>
+          ) : mode === 'multi' && generatingMulti ? (
+            <div className="p-4 flex flex-col items-center justify-center min-h-[400px]">
+              <div className="text-center space-y-4">
+                <div className="relative w-16 h-16 mx-auto">
+                  <div className="absolute inset-0 border-4 border-gray-200 dark:border-gray-700 rounded-full" />
+                  <div
+                    className="absolute inset-0 border-4 border-[#FF6B00] rounded-full animate-spin"
+                    style={{ borderTopColor: 'transparent', borderRightColor: 'transparent' }}
+                  />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Generating {multiProgress.total} brackets...
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Building bracket {multiProgress.completed} of {multiProgress.total}
+                  </p>
+                </div>
+                <div className="w-64 mx-auto">
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#FF6B00] rounded-full transition-all duration-300"
+                      style={{ width: `${multiProgress.total > 0 ? (multiProgress.completed / multiProgress.total) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : mode === 'multi' && multiBrackets.length > 0 ? (
             <div className="p-4">
               <MultiBracketView
                 brackets={multiBrackets}
                 teams={teamsMap}
                 archetypes={poolConfig.archetypes}
+                poolSize={poolConfig.poolSize}
               />
             </div>
           ) : (

@@ -323,7 +323,7 @@ function assignArchetypes(
  * @param claudeBiases - Claude AI adjustments (optional)
  * @returns Array of BracketState, one per requested bracket
  */
-export function generateMultiBrackets(
+export async function generateMultiBrackets(
   teams: Team[],
   simResults: SimulationResults,
   poolConfig: PoolConfig,
@@ -332,8 +332,9 @@ export function generateMultiBrackets(
   odds: MatchupOdds[] | undefined,
   historicalTrends: HistoricalTrends | undefined,
   claudeBiases?: ClaudeBiasAdjustment[],
-  advancedSettings?: AdvancedModelSettings
-): BracketState[] {
+  advancedSettings?: AdvancedModelSettings,
+  onProgress?: (completed: number, total: number) => void
+): Promise<BracketState[]> {
   const { numBrackets, poolSize, scoringSystem, archetypes } = poolConfig;
 
   // Step 1: Generate base bracket with moderate appetite
@@ -406,6 +407,13 @@ export function generateMultiBrackets(
 
       brackets.push(modifiedBracket);
     }
+
+    // Report progress and yield to the event loop between brackets
+    if (onProgress) {
+      onProgress(i + 1, numBrackets);
+    }
+    // Yield to the event loop so the UI can update with progress
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
   return brackets;
