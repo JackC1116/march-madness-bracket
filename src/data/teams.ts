@@ -1,4 +1,5 @@
 import type { Team } from '../types';
+// RecentForm is used inline within Team objects below
 
 export const TEAMS: Team[] = [
   // ============================================================
@@ -15,6 +16,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 183, barthag: 0.42 },
     sagarin: { rank: 180, rating: 67.8 },
     profile: { style: 'tempo-push', tempo: 'fast', threePtRate: 0.38, ftRate: 0.30, turnoverRate: 0.19, orbRate: 0.28 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W1', confTourneyResult: 'Won America East', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'howard',
   },
@@ -29,6 +31,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 208, barthag: 0.36 },
     sagarin: { rank: 207, rating: 64.5 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.36, ftRate: 0.33, turnoverRate: 0.21, orbRate: 0.27 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won MEAC', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'umbc',
   },
@@ -43,6 +46,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 218, barthag: 0.33 },
     sagarin: { rank: 216, rating: 63.1 },
     profile: { style: 'grind-it-out', tempo: 'slow', threePtRate: 0.32, ftRate: 0.31, turnoverRate: 0.20, orbRate: 0.30 },
+    recentForm: { last10Record: '7-3', last10Wins: 7, last10Losses: 3, streak: 'W4', confTourneyResult: 'Won SWAC title', momentum: 'warm' },
     isFirstFour: true,
     firstFourOpponentId: 'lehigh',
   },
@@ -57,6 +61,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 193, barthag: 0.39 },
     sagarin: { rank: 192, rating: 66.4 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.37, ftRate: 0.32, turnoverRate: 0.18, orbRate: 0.27 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'W2', confTourneyResult: 'Won Patriot', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'prairie-view',
   },
@@ -71,6 +76,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 40, barthag: 0.82 },
     sagarin: { rank: 39, rating: 83.6 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.34, ftRate: 0.35, turnoverRate: 0.17, orbRate: 0.30 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'nc-state',
   },
@@ -85,6 +91,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 46, barthag: 0.80 },
     sagarin: { rank: 44, rating: 82.9 },
     profile: { style: 'offensive', tempo: 'fast', threePtRate: 0.37, ftRate: 0.33, turnoverRate: 0.18, orbRate: 0.29 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'texas',
   },
@@ -99,6 +106,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 53, barthag: 0.78 },
     sagarin: { rank: 51, rating: 81.5 },
     profile: { style: 'defensive', tempo: 'slow', threePtRate: 0.35, ftRate: 0.30, turnoverRate: 0.16, orbRate: 0.28 },
+    recentForm: { last10Record: '9-1', last10Wins: 9, last10Losses: 1, streak: 'L1', confTourneyResult: 'Lost MAC QF', momentum: 'warm' },
     isFirstFour: true,
     firstFourOpponentId: 'smu',
   },
@@ -113,6 +121,7 @@ export const TEAMS: Team[] = [
     barttorvik: { rank: 49, barthag: 0.79 },
     sagarin: { rank: 48, rating: 82.3 },
     profile: { style: 'balanced', tempo: 'medium', threePtRate: 0.36, ftRate: 0.34, turnoverRate: 0.17, orbRate: 0.29 },
+    recentForm: { last10Record: '6-4', last10Wins: 6, last10Losses: 4, streak: 'L1', confTourneyResult: 'Unknown', momentum: 'neutral' },
     isFirstFour: true,
     firstFourOpponentId: 'miami-oh',
   },

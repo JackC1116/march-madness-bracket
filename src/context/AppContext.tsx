@@ -13,7 +13,9 @@ import {
   type MatchupNarrative,
   type Matchup,
   type PickHistoryEntry,
+  type AdvancedModelSettings,
   DEFAULT_WEIGHTS,
+  DEFAULT_ADVANCED_SETTINGS,
   SCORING_SYSTEMS,
 } from '../types';
 
@@ -45,7 +47,8 @@ type AppAction =
   | { type: 'AUTO_FILL_BRACKET' }
   | { type: 'CLEAR_SAVED_STATE' }
   | { type: 'SET_COMPARISON_BRACKET'; payload: BracketState }
-  | { type: 'CLEAR_COMPARISON_BRACKET' };
+  | { type: 'CLEAR_COMPARISON_BRACKET' }
+  | { type: 'SET_ADVANCED_SETTINGS'; payload: AdvancedModelSettings };
 
 // ── Round ordering for propagation logic ──────────────────────
 
@@ -406,6 +409,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'CLEAR_COMPARISON_BRACKET':
       return { ...state, comparisonBracket: null };
 
+    case 'SET_ADVANCED_SETTINGS':
+      return { ...state, advancedSettings: action.payload };
+
     default:
       return state;
   }
@@ -440,6 +446,7 @@ const defaultState: AppState = {
   pickHistory: [],
   undoneActions: [],
   comparisonBracket: null,
+  advancedSettings: { ...DEFAULT_ADVANCED_SETTINGS },
 };
 
 // ── localStorage persistence ──────────────────────────────────

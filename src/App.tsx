@@ -23,6 +23,7 @@ import MultiBracketView from './components/MultiBracketView';
 import ExportPanel from './components/ExportPanel';
 import GuidedPicks from './components/GuidedPicks';
 import BracketComparison from './components/BracketComparison';
+import AdvancedSettings from './components/AdvancedSettings';
 
 function Confetti() {
   const colors = ['#00274C', '#FF6B00', '#22c55e', '#eab308', '#ef4444', '#8b5cf6'];
@@ -66,6 +67,7 @@ function BracketApp() {
     poolConfig, bracket, simulationResults, narratives,
     guidedPickIndex, multiBrackets, claudeApiKey, isSimulating, theme,
     simulationIterations, pickHistory, undoneActions, comparisonBracket,
+    advancedSettings,
   } = state;
 
   const { pickWinner, lockPick: _lockPick, resetBracket, autoFillBracket } = useBracket();
@@ -318,6 +320,12 @@ function BracketApp() {
                   onChange={(w) => dispatch({ type: 'SET_WEIGHTS', payload: w })}
                   iterations={simulationIterations}
                   onIterationsChange={(n) => dispatch({ type: 'SET_SIMULATION_ITERATIONS', payload: n })}
+                />
+
+                {/* Advanced Model Settings */}
+                <AdvancedSettings
+                  settings={advancedSettings}
+                  onChange={(s) => dispatch({ type: 'SET_ADVANCED_SETTINGS', payload: s })}
                 />
 
                 {/* Pool Config */}

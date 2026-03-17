@@ -9,6 +9,7 @@ import type {
   ClaudeBiasAdjustment,
   MatchupOdds,
   HistoricalTrends,
+  AdvancedModelSettings,
 } from '../types';
 
 /**
@@ -170,6 +171,7 @@ export interface CPRContext {
   claudeBiases?: ClaudeBiasAdjustment[];
   odds?: MatchupOdds[];
   historicalTrends?: HistoricalTrends;
+  advancedSettings?: AdvancedModelSettings;
 }
 
 /**
@@ -213,7 +215,8 @@ export function computeCPR(
     netRank: { min: number; max: number };
     sagarin: { min: number; max: number };
   },
-  claudeBiases?: ClaudeBiasAdjustment[]
+  claudeBiases?: ClaudeBiasAdjustment[],
+  advancedSettings?: AdvancedModelSettings
 ): number {
   const normKenpom = normalizeValue(team.kenpom.adjEM, bounds.adjEM.min, bounds.adjEM.max);
   const normBarthag = normalizeValue(team.barttorvik.barthag, bounds.barthag.min, bounds.barthag.max);
@@ -224,7 +227,7 @@ export function computeCPR(
   const expFactor = experienceFactor(team);
   const biasModifier = computeBiasModifier(team, biases, claudeBiases);
 
-  const cpr =
+  let cpr =
     weights.kenpom * normKenpom +
     weights.barttorvik * normBarthag +
     weights.net * normNet +
@@ -234,7 +237,63 @@ export function computeCPR(
     weights.experience * expFactor +
     biasModifier;
 
+  // --- Advanced Model Settings adjustments ---
+  if (advancedSettings) {
+    // Free Throw Adjustment: penalize teams with low FT rate
+    if (advancedSettings.freeThrowAdjustment) {
+      const ftPct = team.profile.ftRate * 100; // convert to percentage
+      if (ftPct < advancedSettings.freeThrowPenaltyThreshold) {
+        cpr -= 0.02;
+      }
+    }
+
+    // Recency Weighting: bonus/penalty based on recent form momentum
+    if (advancedSettings.recencyWeighting && team.recentForm) {
+      const momentumMap: Record<string, number> = {
+        hot: 0.05,
+        warm: 0.02,
+        neutral: 0,
+        cool: -0.02,
+        cold: -0.05,
+      };
+      const momentumBonus = momentumMap[team.recentForm.momentum] ?? 0;
+      cpr += momentumBonus * advancedSettings.recencyWeight;
+    }
+  }
+
   return cpr;
+}
+
+/**
+ * Compute champion viability for a team based on advanced champion filter settings.
+ * Returns 1 if the team meets champion thresholds, 0 otherwise.
+ * Used by bracket-generator for Final Four / Championship weighting.
+ */
+export function computeChampionViability(
+  team: Team,
+  advancedSettings?: AdvancedModelSettings
+): number {
+  if (!advancedSettings || !advancedSettings.championFilter) {
+    return 1;
+  }
+
+  let viable = true;
+
+  // Check offensive rank threshold (KenPom adjO rank — we use kenpom.rank as proxy
+  // since adjO rank isn't stored separately; compare adjO position via overall rank)
+  // For adjO rank, lower adjO values mean worse offense, so we compare kenpom rank of adjO.
+  // Since we don't have separate adjO rank, we use heuristic: if adjO is in bottom tier,
+  // the team is unlikely to have a top adjO rank.
+  // Use the team's overall kenpom rank as a reasonable proxy for both checks.
+  if (team.kenpom.rank > advancedSettings.championFilterMinOffenseRank) {
+    viable = false;
+  }
+
+  if (team.kenpom.rank > advancedSettings.championFilterMinDefenseRank) {
+    viable = false;
+  }
+
+  return viable ? 1 : 0;
 }
 
 /**
@@ -242,7 +301,7 @@ export function computeCPR(
  * This precomputes normalization bounds once for consistency.
  */
 export function computeAllCPR(context: CPRContext): Record<string, number> {
-  const { allTeams, weights, biases, claudeBiases, odds, historicalTrends } = context;
+  const { allTeams, weights, biases, claudeBiases, odds, historicalTrends, advancedSettings } = context;
   const bounds = computeBounds(allTeams);
   const results: Record<string, number> = {};
 
@@ -254,7 +313,8 @@ export function computeAllCPR(context: CPRContext): Record<string, number> {
       odds,
       historicalTrends,
       bounds,
-      claudeBiases
+      claudeBiases,
+      advancedSettings
     );
   }
 

@@ -6,6 +6,7 @@ import type {
   Team,
   Round,
   HistoricalTrends,
+  AdvancedModelSettings,
 } from '../types';
 
 /**

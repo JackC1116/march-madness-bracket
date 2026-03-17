@@ -42,6 +42,16 @@ export interface TeamProfile {
   orbRate: number;
 }
 
+export interface RecentForm {
+  last10Record: string;      // e.g., "9-1"
+  last10Wins: number;
+  last10Losses: number;
+  streak: string;            // e.g., "W11", "L2"
+  confTourneyResult: string; // e.g., "Won title", "Lost semifinal", "Lost QF"
+  momentum: 'hot' | 'warm' | 'neutral' | 'cool' | 'cold';
+  injuryNote?: string;       // key injury if any
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -53,6 +63,7 @@ export interface Team {
   barttorvik: BarttorvikStats;
   sagarin: SagarinStats;
   profile: TeamProfile;
+  recentForm?: RecentForm;
   isFirstFour?: boolean;
   firstFourOpponentId?: string;
 }
@@ -190,6 +201,63 @@ export interface MatchupNarrative {
   confidence: string;
 }
 
+// Advanced model settings
+export interface AdvancedModelSettings {
+  // Champion filter: only consider teams meeting these thresholds as title contenders
+  championFilter: boolean;
+  championFilterMinOffenseRank: number;
+  championFilterMinDefenseRank: number;
+  championFilterMinSosRank: number;
+
+  // Upset calibration
+  upsetCalibration: boolean;
+  minFirstRoundUpsets: number;
+  maxFirstRoundUpsets: number;
+  alwaysPick12Over5: boolean;
+
+  // Free throw adjustment
+  freeThrowAdjustment: boolean;
+  freeThrowPenaltyThreshold: number;
+
+  // Tempo trapezoid
+  tempoTrapezoid: boolean;
+  tempoMinRange: number;
+  tempoMaxRange: number;
+
+  // Recency weighting
+  recencyWeighting: boolean;
+  recencyWeight: number;
+
+  // Contrarian value
+  contrarianValue: boolean;
+  contrarianStrength: number;
+}
+
+export const DEFAULT_ADVANCED_SETTINGS: AdvancedModelSettings = {
+  championFilter: false,
+  championFilterMinOffenseRank: 40,
+  championFilterMinDefenseRank: 25,
+  championFilterMinSosRank: 23,
+
+  upsetCalibration: false,
+  minFirstRoundUpsets: 7,
+  maxFirstRoundUpsets: 10,
+  alwaysPick12Over5: false,
+
+  freeThrowAdjustment: false,
+  freeThrowPenaltyThreshold: 68,
+
+  tempoTrapezoid: false,
+  tempoMinRange: 64,
+  tempoMaxRange: 72,
+
+  recencyWeighting: false,
+  recencyWeight: 0.15,
+
+  contrarianValue: false,
+  contrarianStrength: 0.3,
+};
+
 // App state
 export interface PickHistoryEntry {
   matchupId: string;
@@ -218,4 +286,5 @@ export interface AppState {
   pickHistory: PickHistoryEntry[];
   undoneActions: PickHistoryEntry[];
   comparisonBracket: BracketState | null;
+  advancedSettings: AdvancedModelSettings;
 }
