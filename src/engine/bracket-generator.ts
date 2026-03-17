@@ -228,6 +228,7 @@ function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): FirstF
       const winner = Math.random() < probTeamWins ? team : opp;
       resolved.push(winner);
 
+      const loser = winner.id === team.id ? opp : team;
       const id = `ff-${position}`;
       ffMatchups[id] = {
         id,
@@ -239,7 +240,7 @@ function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): FirstF
         winnerId: winner.id,
         winProbA: probTeamWins,
         locked: false,
-        isUpset: winner.id === opp.id && cprMap[team.id] > cprMap[opp.id],
+        isUpset: cprMap[winner.id] < cprMap[loser.id],
         confidence: Math.abs(probTeamWins - 0.5) * 2,
       };
     } else {
@@ -298,8 +299,14 @@ export function generateBracket(
 
   // Build matchups structure — start with First Four matchups
   const matchups: Record<string, Matchup> = { ...ffMatchups };
-  function createMatchupId(round: Round, region: Region | 'Final Four', position: number): string {
-    return `${round}-${region}-${position}`;
+  /** Canonical matchup ID scheme matching bracket-structure.ts */
+  function makeId(round: Round, region: Region | 'Final Four', position: number): string {
+    if (round === 'First Four') return `ff-${position}`;
+    if (round === 'Championship') return 'champ';
+    if (round === 'Final Four') return `ff4-${position}`;
+    const regionKey = region.toLowerCase().replace(' ', '');
+    const roundKey = round.toLowerCase().replace(' ', '');
+    return `${regionKey}-${roundKey}-${position}`;
   }
 
   // Group resolved teams by region
@@ -336,12 +343,12 @@ export function generateBracket(
         0, upsetAppetite, scoringSystem, simulationResults, 'R64'
       );
 
-      const matchupId = createMatchupId('R64', region, i);
+      const matchupId = makeId('R64', region, i + 1);
       matchups[matchupId] = {
         id: matchupId,
         round: 'R64',
         region,
-        position: i,
+        position: i + 1,
         teamAId: teamA.id,
         teamBId: teamB.id,
         winnerId: result.winner.id,
@@ -383,8 +390,8 @@ export function generateBracket(
           roundIdx, upsetAppetite, scoringSystem, simulationResults, round
         );
 
-        const pos = Math.floor(i / 2);
-        const matchupId = createMatchupId(round, region, pos);
+        const pos = Math.floor(i / 2) + 1;
+        const matchupId = makeId(round, region, pos);
         matchups[matchupId] = {
           id: matchupId,
           round,
@@ -441,12 +448,12 @@ export function generateBracket(
       4, upsetAppetite, scoringSystem, simulationResults, 'Final Four'
     );
 
-    const matchupId = createMatchupId('Final Four', 'Final Four', i);
+    const matchupId = makeId('Final Four', 'Final Four', i + 1);
     matchups[matchupId] = {
       id: matchupId,
       round: 'Final Four',
       region: 'Final Four',
-      position: i,
+      position: i + 1,
       teamAId: teamA.id,
       teamBId: teamB.id,
       winnerId: result.winner.id,
@@ -484,12 +491,12 @@ export function generateBracket(
       5, upsetAppetite, scoringSystem, simulationResults, 'Championship'
     );
 
-    const matchupId = createMatchupId('Championship', 'Final Four', 0);
+    const matchupId = makeId('Championship', 'Final Four', 1);
     matchups[matchupId] = {
       id: matchupId,
       round: 'Championship',
       region: 'Final Four',
-      position: 0,
+      position: 1,
       teamAId: teamA.id,
       teamBId: teamB.id,
       winnerId: result.winner.id,
@@ -510,10 +517,131 @@ export function generateBracket(
     applyContrarianValue(matchups, teamsById, advancedSettings);
   }
 
+  // --- Cascade: propagate any post-processing flips through downstream rounds ---
+  if (advancedSettings?.upsetCalibration || advancedSettings?.contrarianValue) {
+    cascadePostProcessing(
+      matchups, teamsById, cprMap,
+      upsetAppetite, scoringSystem, simulationResults,
+      historicalTrends, advancedSettings
+    );
+  }
+
   return {
     matchups,
     teams: teamsById,
   };
+}
+
+/**
+ * After post-processing flips R64/R32 winners, cascade those changes through
+ * downstream rounds so that team slots and winners stay consistent.
+ *
+ * Strategy: For each round from R32 onward, check if the feeder matchups'
+ * winners differ from the teams currently slotted. If so, update the team
+ * slots and re-pick the winner.
+ */
+function cascadePostProcessing(
+  matchups: Record<string, Matchup>,
+  teamsById: Record<string, Team>,
+  cprMap: Record<string, number>,
+  upsetAppetite: UpsetAppetite,
+  scoringSystem: ScoringSystem,
+  simulationResults: SimulationResults | undefined,
+  historicalTrends: HistoricalTrends | undefined,
+  advancedSettings: AdvancedModelSettings | undefined,
+): void {
+  const roundOrder: Round[] = ['R32', 'Sweet 16', 'Elite 8', 'Final Four', 'Championship'];
+
+  for (const round of roundOrder) {
+    const roundMatchups = Object.values(matchups).filter((m) => m.round === round);
+
+    for (const m of roundMatchups) {
+      // Find the two feeder matchups whose winners should be this matchup's teams
+      const feeders = findFeederMatchups(matchups, m);
+      if (feeders.length !== 2) continue;
+
+      const newTeamAId = feeders[0].winnerId;
+      const newTeamBId = feeders[1].winnerId;
+      if (!newTeamAId || !newTeamBId) continue;
+
+      // Check if teams changed
+      if (newTeamAId === m.teamAId && newTeamBId === m.teamBId) continue;
+
+      // Update team slots
+      m.teamAId = newTeamAId;
+      m.teamBId = newTeamBId;
+
+      const teamA = teamsById[newTeamAId];
+      const teamB = teamsById[newTeamBId];
+      if (!teamA || !teamB) continue;
+
+      // Re-pick winner
+      const roundIdx = ROUND_ORDER.indexOf(round);
+      const probA = computeWinProbability(
+        teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
+        round, historicalTrends, advancedSettings
+      );
+
+      const result = pickWinner(
+        { teamA, teamB, probA, cprA: cprMap[teamA.id], cprB: cprMap[teamB.id] },
+        roundIdx, upsetAppetite, scoringSystem, simulationResults, round
+      );
+
+      m.winnerId = result.winner.id;
+      m.winProbA = probA;
+      m.isUpset = result.isUpset;
+      m.confidence = result.probWinner;
+    }
+  }
+}
+
+/**
+ * Find the two feeder matchups for a given matchup based on round/region/position.
+ */
+function findFeederMatchups(matchups: Record<string, Matchup>, target: Matchup): Matchup[] {
+  const prevRoundMap: Record<string, Round> = {
+    'R32': 'R64',
+    'Sweet 16': 'R32',
+    'Elite 8': 'Sweet 16',
+    'Final Four': 'Elite 8',
+    'Championship': 'Final Four',
+  };
+
+  const prevRound = prevRoundMap[target.round];
+  if (!prevRound) return [];
+
+  if (target.round === 'Championship') {
+    // Championship feeds from the two FF games
+    return Object.values(matchups)
+      .filter((m) => m.round === 'Final Four')
+      .sort((a, b) => a.position - b.position);
+  }
+
+  if (target.round === 'Final Four') {
+    // FF game at position N feeds from the Elite 8 winners of its two regions
+    const semis: [Region, Region][] = [['East', 'West'], ['South', 'Midwest']];
+    const pairIdx = target.position - 1;
+    if (pairIdx < 0 || pairIdx >= semis.length) return [];
+    const [regionA, regionB] = semis[pairIdx];
+    return Object.values(matchups)
+      .filter((m) => m.round === 'Elite 8' && (m.region === regionA || m.region === regionB))
+      .sort((a, b) => {
+        // regionA's winner is teamA, regionB's is teamB
+        const aIdx = a.region === regionA ? 0 : 1;
+        const bIdx = b.region === regionA ? 0 : 1;
+        return aIdx - bIdx;
+      });
+  }
+
+  // Regional rounds: position N in this round feeds from positions (2N-1) and (2N) of prev round
+  const feederPos1 = (target.position - 1) * 2 + 1;
+  const feederPos2 = (target.position - 1) * 2 + 2;
+  return Object.values(matchups)
+    .filter(
+      (m) => m.round === prevRound && m.region === target.region &&
+        (m.position === feederPos1 || m.position === feederPos2)
+    )
+    .sort((a, b) => a.position - b.position);
 }
 
 /**

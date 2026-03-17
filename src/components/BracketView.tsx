@@ -426,7 +426,7 @@ export default function BracketView({
   const regionalRounds: Round[] = ['R64', 'R32', 'Sweet 16', 'Elite 8'];
 
   const finalFourMatchups = grouped['Final Four'] || {};
-  const ffGames = finalFourMatchups['Final Four'] || [];
+  const ffGames = (finalFourMatchups['Final Four'] || []).sort((a, b) => a.position - b.position);
   const champGames = finalFourMatchups['Championship'] || [];
 
   // Collect First Four games from all regions
