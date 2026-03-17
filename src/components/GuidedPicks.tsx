@@ -39,14 +39,14 @@ function MiniMatchup({
     <div
       className={`
         px-1.5 py-1 rounded text-[8px] border transition-all
-        ${isCurrent ? 'border-blue-400 bg-blue-50 ring-1 ring-blue-200' : 'border-gray-100'}
-        ${winner ? 'bg-gray-50' : 'bg-white'}
+        ${isCurrent ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-200' : 'border-gray-100 dark:border-gray-600'}
+        ${winner ? 'bg-gray-50 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'}
       `}
     >
-      <div className={`truncate ${winner && winner.id === matchup.teamAId ? 'font-bold' : 'text-gray-400'}`}>
+      <div className={`truncate ${winner && winner.id === matchup.teamAId ? 'font-bold dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
         {teamA ? `${teamA.seed} ${teamA.name}` : 'TBD'}
       </div>
-      <div className={`truncate ${winner && winner.id === matchup.teamBId ? 'font-bold' : 'text-gray-400'}`}>
+      <div className={`truncate ${winner && winner.id === matchup.teamBId ? 'font-bold dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
         {teamB ? `${teamB.seed} ${teamB.name}` : 'TBD'}
       </div>
     </div>
@@ -296,13 +296,13 @@ export default function GuidedPicks({
 
             {/* Narrative */}
             {narrative && (
-              <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50">
+              <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                 <div className="flex items-start gap-2">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0 mt-0.5" style={{ backgroundColor: '#00274C' }}>
                     AI
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{narrative.narrative}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{narrative.narrative}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] px-2 py-0.5 bg-white border border-gray-200 rounded-full text-gray-500">
                         Key: {narrative.keyFactor}
@@ -318,7 +318,7 @@ export default function GuidedPicks({
               <button
                 onClick={onPrev}
                 disabled={currentIndex === 0}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -328,7 +328,7 @@ export default function GuidedPicks({
 
               <button
                 onClick={onNext}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-500"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-700 transition-colors text-gray-500"
               >
                 Skip
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

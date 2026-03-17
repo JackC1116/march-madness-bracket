@@ -64,8 +64,8 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
 
   if (brackets.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-        <p className="text-sm text-gray-400">No brackets generated yet. Configure your pool settings and generate brackets.</p>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-8 text-center">
+        <p className="text-sm text-gray-400 dark:text-gray-500">No brackets generated yet. Configure your pool settings and generate brackets.</p>
       </div>
     );
   }
@@ -75,9 +75,9 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
   const archetypeInfo = ARCHETYPE_LABELS[activeArchetype];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Tabs */}
-      <div className="flex border-b border-gray-100">
+      <div className="flex border-b border-gray-100 dark:border-gray-700 dark:border-gray-700">
         {brackets.map((_, i) => {
           const arch = archetypes[i] || 'chalk';
           const info = ARCHETYPE_LABELS[arch];
@@ -88,7 +88,7 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
               onClick={() => setActiveTab(i)}
               className={`
                 flex-1 px-4 py-3 text-center transition-colors border-b-2
-                ${isActive ? 'border-current bg-gray-50' : 'border-transparent hover:bg-gray-50'}
+                ${isActive ? 'border-current bg-gray-50 dark:bg-gray-700' : 'border-transparent hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-700'}
               `}
               style={{ color: isActive ? info.color : '#9ca3af' }}
             >
@@ -102,13 +102,13 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
       </div>
 
       {/* Summary bar */}
-      <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: archetypeInfo.color }}
           />
-          <span className="text-sm font-bold text-gray-900">{archetypeInfo.label} Bracket</span>
+          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{archetypeInfo.label} Bracket</span>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
@@ -119,7 +119,7 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
           </div>
           <div className="text-right">
             <span className="text-[10px] text-gray-400 block">Differences</span>
-            <span className="text-sm font-bold tabular-nums text-gray-700">
+            <span className="text-sm font-bold tabular-nums text-gray-700 dark:text-gray-200">
               {differences.size} games
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
             return (
               <div key={round}>
                 <div className="flex items-center gap-2 mb-2">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     {round}
                   </h4>
                   <span className="text-[10px] text-gray-400">
@@ -159,7 +159,7 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
                         key={m.id}
                         className={`
                           px-2.5 py-2 rounded-lg border text-center transition-all
-                          ${isLeverage ? 'border-orange-300 bg-orange-50' : isDiff ? 'border-blue-200 bg-blue-50' : 'border-gray-200'}
+                          ${isLeverage ? 'border-orange-300 bg-orange-50' : isDiff ? 'border-blue-200 bg-blue-50' : 'border-gray-200 dark:border-gray-600'}
                         `}
                       >
                         {/* Teams */}
@@ -211,8 +211,8 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
 
       {/* Leverage games summary */}
       {leverageGames.length > 0 && (
-        <div className="px-5 py-4 border-t border-gray-100">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700">
+          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Key Leverage Games
           </h4>
           <p className="text-[10px] text-gray-400 mb-3">
@@ -268,8 +268,8 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
       )}
 
       {/* Score comparison */}
-      <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+      <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
           Expected Score Comparison
         </h4>
         <div className="flex gap-3">
@@ -286,11 +286,11 @@ export default function MultiBracketView({ brackets, teams, archetypes }: MultiB
                   <span className="text-[10px] font-bold" style={{ color: info.color }}>
                     {info.label}
                   </span>
-                  <span className="text-xs font-bold tabular-nums text-gray-700">
+                  <span className="text-xs font-bold tabular-nums text-gray-700 dark:text-gray-200">
                     {score.toFixed(1)}
                   </span>
                 </div>
-                <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{ width: `${pct}%`, backgroundColor: info.color }}

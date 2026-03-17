@@ -9,14 +9,14 @@ interface WeightSlidersProps {
   onIterationsChange?: (n: number) => void;
 }
 
-const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string }[] = [
-  { key: 'kenpom', label: 'KenPom', description: 'Adjusted efficiency margin' },
-  { key: 'barttorvik', label: 'Barttorvik', description: 'Barthag win probability' },
-  { key: 'net', label: 'NET', description: 'NCAA Evaluation Tool' },
-  { key: 'sagarin', label: 'Sagarin', description: 'Sagarin ratings' },
-  { key: 'vegas', label: 'Vegas', description: 'Betting market odds' },
-  { key: 'historical', label: 'Historical', description: 'Seed matchup history' },
-  { key: 'experience', label: 'Experience', description: 'Tournament experience' },
+const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string; tooltip: string }[] = [
+  { key: 'kenpom', label: 'KenPom', description: 'Adjusted efficiency margin', tooltip: 'Ken Pomeroy ratings — the gold standard in college basketball analytics. Measures adjusted offensive and defensive efficiency per 100 possessions, accounting for opponent strength and game location.' },
+  { key: 'barttorvik', label: 'Barttorvik', description: 'Barthag win probability', tooltip: 'T-Rank by Bart Torvik — an advanced analytics system similar to KenPom. Barthag represents the estimated probability of beating an average D-I team. A strong complementary model to KenPom.' },
+  { key: 'net', label: 'NET', description: 'NCAA Evaluation Tool', tooltip: 'The NCAA\'s official ranking metric used by the selection committee for seeding and at-large bids. Factors in game results, strength of schedule, scoring margin, and efficiency.' },
+  { key: 'sagarin', label: 'Sagarin', description: 'Sagarin ratings', tooltip: 'Jeff Sagarin\'s computer rankings — an independent rating system blending pure points-based and Elo-style methods. Provides a different perspective from efficiency-based models.' },
+  { key: 'vegas', label: 'Vegas', description: 'Betting market odds', tooltip: 'Consensus Vegas betting lines and implied win probabilities. Markets are highly efficient and absorb information like injuries, motivation, and matchup dynamics that pure stats may miss.' },
+  { key: 'historical', label: 'Historical', description: 'Seed matchup history', tooltip: 'Historical seed-vs-seed performance in the NCAA tournament. E.g., 12-seeds beat 5-seeds ~35% of the time. Captures systemic tournament patterns that power ratings alone don\'t reflect.' },
+  { key: 'experience', label: 'Experience', description: 'Tournament experience', tooltip: 'Factors like returning tournament minutes, coach\'s NCAA tournament record, and program pedigree. Teams with March experience tend to perform closer to expectations.' },
 ];
 
 export default function WeightSliders({ weights, onChange, iterations, onIterationsChange }: WeightSlidersProps) {
@@ -131,7 +131,13 @@ export default function WeightSliders({ weights, onChange, iterations, onIterati
                     className="w-2.5 h-2.5 rounded-sm"
                     style={{ backgroundColor: colors[i] }}
                   />
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{w.label}</span>
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 group relative cursor-help">
+                    <span className="border-b border-dotted border-gray-300 dark:border-gray-600">{w.label}</span>
+                    <span className="invisible group-hover:visible absolute bottom-full left-0 mb-2 px-3 py-2 text-[11px] leading-snug text-white bg-gray-900 dark:bg-gray-600 rounded-lg shadow-lg w-56 text-left font-normal z-50 pointer-events-none">
+                      {w.tooltip}
+                      <span className="absolute top-full left-4 border-4 border-transparent border-t-gray-900 dark:border-t-gray-600" />
+                    </span>
+                  </span>
                   <span className="text-[10px] text-gray-400 dark:text-gray-500">{w.description}</span>
                 </div>
                 <div className="flex items-center gap-1.5">

@@ -10,13 +10,14 @@ interface MatchupCardProps {
 
 interface StatRowProps {
   label: string;
+  tooltip?: string;
   valueA: string | number;
   valueB: string | number;
   highlightA?: boolean;
   highlightB?: boolean;
 }
 
-function StatRow({ label, valueA, valueB, highlightA, highlightB }: StatRowProps) {
+function StatRow({ label, tooltip, valueA, valueB, highlightA, highlightB }: StatRowProps) {
   return (
     <div className="flex items-center text-sm py-1.5 border-b border-gray-50 dark:border-gray-700 last:border-0">
       <span
@@ -26,7 +27,18 @@ function StatRow({ label, valueA, valueB, highlightA, highlightB }: StatRowProps
       >
         {valueA}
       </span>
-      <span className="flex-1 text-center text-xs text-gray-400 dark:text-gray-500 font-medium">{label}</span>
+      <span
+        className="flex-1 text-center text-xs text-gray-400 dark:text-gray-500 font-medium group relative cursor-help"
+        title={tooltip}
+      >
+        <span className="border-b border-dotted border-gray-300 dark:border-gray-600">{label}</span>
+        {tooltip && (
+          <span className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-[11px] leading-snug text-white bg-gray-900 dark:bg-gray-700 rounded-lg shadow-lg w-52 text-left font-normal z-50 pointer-events-none">
+            {tooltip}
+            <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
+          </span>
+        )}
+      </span>
       <span
         className={`w-20 text-left tabular-nums ${
           highlightB ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
@@ -137,6 +149,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         </h3>
         <StatRow
           label="KenPom AdjEM"
+          tooltip="KenPom Adjusted Efficiency Margin — the difference between a team's offensive and defensive efficiency, adjusted for opponent strength. The gold standard predictive metric in college basketball. Higher is better."
           valueA={teamA.kenpom.adjEM.toFixed(1)}
           valueB={teamB.kenpom.adjEM.toFixed(1)}
           highlightA={kenpomBetter === 'A'}
@@ -144,6 +157,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         />
         <StatRow
           label="Barthag"
+          tooltip="Barttorvik Barthag — a team's estimated probability of beating an average Division I team on a neutral court. Ranges from 0 to 1. Combines offensive and defensive efficiency into a single win probability."
           valueA={teamA.barttorvik.barthag.toFixed(4)}
           valueB={teamB.barttorvik.barthag.toFixed(4)}
           highlightA={bartBetter === 'A'}
@@ -151,6 +165,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         />
         <StatRow
           label="NET Rank"
+          tooltip="NCAA Evaluation Tool — the NCAA's official ranking metric used by the selection committee. Factors in game results, strength of schedule, game location, scoring margin, and net offensive/defensive efficiency. Lower is better."
           valueA={`#${teamA.net.rank}`}
           valueB={`#${teamB.net.rank}`}
           highlightA={netBetter === 'A'}
@@ -158,6 +173,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         />
         <StatRow
           label="Sagarin"
+          tooltip="Sagarin Ratings — an independent computer ranking system that uses a combination of pure points-based and win/loss-based methods. Provides an alternative perspective on team strength. Higher is better."
           valueA={teamA.sagarin.rating.toFixed(1)}
           valueB={teamB.sagarin.rating.toFixed(1)}
           highlightA={sagBetter === 'A'}
@@ -165,6 +181,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         />
         <StatRow
           label="KenPom Rank"
+          tooltip="KenPom overall ranking — teams ranked by adjusted efficiency margin. Widely considered the most accurate predictive system in college basketball, created by Ken Pomeroy. Lower is better."
           valueA={`#${teamA.kenpom.rank}`}
           valueB={`#${teamB.kenpom.rank}`}
           highlightA={teamA.kenpom.rank < teamB.kenpom.rank}
@@ -172,6 +189,7 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
         />
         <StatRow
           label="Q1 Record"
+          tooltip="Quadrant 1 record — wins and losses against the toughest opponents (home vs top 30 NET, neutral vs top 50, away vs top 75). The selection committee weighs Q1 wins heavily. More wins is better."
           valueA={teamA.net.q1Record}
           valueB={teamB.net.q1Record}
         />
