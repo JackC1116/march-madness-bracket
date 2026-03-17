@@ -201,16 +201,40 @@ function BracketApp() {
   }, [dispatch]);
 
   // Generate single bracket
-  const handleGenerateBracket = useCallback(() => {
-    if (!simulationResults) return;
-    const generated = generateBracket(
-      TEAMS, simulationResults, upsetAppetite,
-      poolConfig.scoringSystem, weights, biases,
-      MATCHUP_ODDS, HISTORICAL_TRENDS, claudeBiases,
-      advancedSettings,
-    );
-    dispatch({ type: 'SET_BRACKET', payload: generated });
-  }, [simulationResults, upsetAppetite, poolConfig.scoringSystem, weights, biases, claudeBiases, advancedSettings, dispatch]);
+  const handleGenerateBracket = useCallback(async () => {
+    // Always run a fresh simulation before generating
+    dispatch({ type: 'SET_IS_SIMULATING', payload: true });
+
+    try {
+      const { runSimulation: runSim } = await import('./engine/monte-carlo');
+      const freshResults = await runSim(
+        TEAMS, weights, biases, MATCHUP_ODDS, HISTORICAL_TRENDS,
+        state.simulationIterations, claudeBiases,
+        (completed, total) => {
+          // Progress is shown via the simulation bar
+          if (completed % 2000 === 0) {
+            dispatch({ type: 'SET_IS_SIMULATING', payload: true }); // keep alive
+          }
+          void total; // suppress unused
+        },
+        advancedSettings, state.luckFactor,
+      );
+
+      dispatch({ type: 'SET_SIMULATION_RESULTS', payload: freshResults });
+      dispatch({ type: 'SET_IS_SIMULATING', payload: false });
+
+      const generated = generateBracket(
+        TEAMS, freshResults, upsetAppetite,
+        poolConfig.scoringSystem, weights, biases,
+        MATCHUP_ODDS, HISTORICAL_TRENDS, claudeBiases,
+        advancedSettings,
+      );
+      dispatch({ type: 'SET_BRACKET', payload: generated });
+    } catch (err) {
+      console.error('Generate bracket failed:', err);
+      dispatch({ type: 'SET_IS_SIMULATING', payload: false });
+    }
+  }, [state.simulationIterations, state.luckFactor, upsetAppetite, poolConfig.scoringSystem, weights, biases, claudeBiases, advancedSettings, dispatch]);
 
   // Generate multi brackets
   const handleGenerateMulti = useCallback(async () => {
