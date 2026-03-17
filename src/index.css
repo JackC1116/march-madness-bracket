@@ -40,6 +40,25 @@ body {
   background: #4b5563;
 }
 
+/* ===== Scrollbar Hide Utility ===== */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===== Scroll Hint Animation ===== */
+@keyframes scroll-hint-fade {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.scroll-hint {
+  animation: scroll-hint-fade 3s ease-out forwards;
+}
+
 /* ===== Confetti Animation ===== */
 @keyframes confetti-fall {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }

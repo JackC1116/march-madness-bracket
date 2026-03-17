@@ -86,6 +86,7 @@ function BracketApp() {
   const [generatingMulti, setGeneratingMulti] = useState(false);
   const [multiProgress, setMultiProgress] = useState({ completed: 0, total: 0 });
   const prevChampionRef = useRef<string | null>(null);
+  const [mobileLeftOpen, setMobileLeftOpen] = useState(false);
 
   // Initialize bracket on mount
   useEffect(() => {
@@ -202,6 +203,7 @@ function BracketApp() {
 
   // Generate single bracket
   const handleGenerateBracket = useCallback(async () => {
+    setMobileLeftOpen(false);
     // Always run a fresh simulation before generating
     dispatch({ type: 'SET_IS_SIMULATING', payload: true });
 
@@ -356,7 +358,7 @@ function BracketApp() {
               <input
                 type="password"
                 placeholder="sk-ant-..."
-                className="px-3 py-1 border rounded text-sm w-80 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                className="px-3 py-1 border rounded text-sm w-full max-w-80 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     dispatch({ type: 'SET_CLAUDE_API_KEY', payload: (e.target as HTMLInputElement).value });
@@ -371,8 +373,20 @@ function BracketApp() {
       )}
 
       <div className="flex flex-col lg:flex-row flex-1 min-h-0">
+        {/* Mobile sidebar backdrop */}
+        {mobileLeftOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+            onClick={() => setMobileLeftOpen(false)}
+          />
+        )}
+
         {/* Left Sidebar */}
-        <aside className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0">
+        <aside className={`
+          fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] transform transition-transform duration-200 lg:relative lg:translate-x-0 lg:w-80 xl:w-96
+          ${mobileLeftOpen ? 'translate-x-0' : '-translate-x-full'}
+          border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0
+        `}>
           {/* Sidebar tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
@@ -537,26 +551,26 @@ function BracketApp() {
           )}
 
           {/* Undo/Redo Floating Toolbar */}
-          <div className="sticky top-0 z-10 flex items-center gap-1 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
+          <div className="sticky top-0 z-10 flex items-center gap-1 px-2 sm:px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700">
             <button
               onClick={handleUndo}
               disabled={!canUndo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition"
               title="Undo (Ctrl+Z)"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
-              Undo
+              <span className="hidden sm:inline">Undo</span>
               <kbd className="hidden sm:inline ml-1 px-1 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-600 rounded">Ctrl+Z</kbd>
             </button>
             <button
               onClick={handleRedo}
               disabled={!canRedo}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition"
               title="Redo (Ctrl+Shift+Z)"
             >
-              Redo
+              <span className="hidden sm:inline">Redo</span>
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
               </svg>
@@ -666,8 +680,9 @@ function BracketApp() {
           )}
         </main>
 
-        {/* Right Sidebar — Matchup Detail / Claude Chat (only when matchup selected) */}
-        <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
+        {/* Right Sidebar — Matchup Detail / Claude Chat */}
+        {/* Desktop: inline sidebar */}
+        <aside className={`hidden lg:block border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'lg:w-80 xl:w-96' : 'lg:w-0 overflow-hidden'}`}>
           {selectedMatchup && selectedTeamA && selectedTeamB ? (
             <div className="space-y-0">
               <button
@@ -704,6 +719,79 @@ function BracketApp() {
             </div>
           )}
         </aside>
+
+        {/* Mobile: bottom sheet for matchup detail */}
+        {selectedMatchup && selectedTeamA && selectedTeamB && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+              onClick={() => setSelectedMatchupId(null)}
+            />
+            <div className="fixed bottom-0 left-0 right-0 max-h-[70vh] z-50 lg:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-t-2xl overflow-y-auto shadow-xl">
+              {/* Drag handle */}
+              <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-white dark:bg-gray-800">
+                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+              </div>
+              <button
+                onClick={() => setSelectedMatchupId(null)}
+                className="w-full flex items-center justify-between px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 transition"
+              >
+                <span>Matchup Detail</span>
+                <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">✕ Close</span>
+              </button>
+              <MatchupCard
+                matchup={selectedMatchup}
+                teamA={selectedTeamA}
+                teamB={selectedTeamB}
+                narrative={selectedNarrative}
+                onPick={(winnerId) => pickWinner(selectedMatchup.id, winnerId)}
+                simulationResults={simulationResults ?? undefined}
+                scoringSystem={poolConfig.scoringSystem}
+              />
+              <ClaudeChat
+                matchupId={selectedMatchupId}
+                teams={teamsMap}
+                bracket={bracket}
+                apiKey={claudeApiKey}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Mobile FAB buttons */}
+        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-30 lg:hidden">
+          {completionStats.picked > 0 && (
+            <button
+              onClick={() => setShowReportCard(true)}
+              className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00274C] to-[#FF6B00] text-white shadow-lg flex items-center justify-center hover:opacity-90 transition"
+              title="Report Card"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={handleGenerateBracket}
+            disabled={isSimulating}
+            className="w-12 h-12 rounded-full bg-[#00274C] text-white shadow-lg flex items-center justify-center disabled:opacity-50 transition"
+            title="Generate Bracket"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setMobileLeftOpen(true)}
+            className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center transition"
+            title="Controls"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ export default function Header({ mode, onModeChange, poolConfig, dataStatus, las
         </div>
 
         {/* Mode selector tabs */}
-        <nav className="flex gap-1 -mb-px">
+        <nav className="flex gap-1 -mb-px overflow-x-auto scrollbar-hide">
           {modes.map((m) => {
             const isActive = mode === m.key;
             return (
@@ -112,7 +112,7 @@ export default function Header({ mode, onModeChange, poolConfig, dataStatus, las
                 key={m.key}
                 onClick={() => onModeChange(m.key)}
                 className={`
-                  relative px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors
+                  relative px-3 sm:px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap
                   ${
                     isActive
                       ? 'text-white'
@@ -123,7 +123,7 @@ export default function Header({ mode, onModeChange, poolConfig, dataStatus, las
               >
                 <span>{m.label}</span>
                 <span
-                  className={`block text-[10px] font-normal mt-0.5 ${
+                  className={`hidden sm:block text-[10px] font-normal mt-0.5 ${
                     isActive ? 'text-blue-200' : 'text-gray-400 dark:text-gray-500'
                   }`}
                 >
