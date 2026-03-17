@@ -484,6 +484,11 @@ function BracketApp() {
                 teams={teamsMap}
                 currentIndex={guidedPickIndex}
                 narratives={narratives}
+                weights={weights}
+                biases={biases}
+                claudeBiases={claudeBiases}
+                odds={MATCHUP_ODDS}
+                historicalTrends={HISTORICAL_TRENDS}
                 onPick={pickWinner}
                 onNext={handleGuidedNext}
                 onPrev={handleGuidedPrev}
