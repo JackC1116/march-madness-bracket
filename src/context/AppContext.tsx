@@ -494,6 +494,7 @@ const defaultState: AppState = {
   undoneActions: [],
   comparisonBracket: null,
   advancedSettings: { ...DEFAULT_ADVANCED_SETTINGS },
+  savedBrackets: [],
 };
 
 // ── localStorage persistence ──────────────────────────────────

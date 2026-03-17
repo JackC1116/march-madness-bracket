@@ -24,6 +24,7 @@ import ExportPanel from './components/ExportPanel';
 import GuidedPicks from './components/GuidedPicks';
 import BracketComparison from './components/BracketComparison';
 import AdvancedSettings from './components/AdvancedSettings';
+import BracketReportCard from './components/BracketReportCard';
 
 function Confetti() {
   const colors = ['#00274C', '#FF6B00', '#22c55e', '#eab308', '#ef4444', '#8b5cf6'];
@@ -80,6 +81,7 @@ function BracketApp() {
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [showReportCard, setShowReportCard] = useState(false);
   const prevChampionRef = useRef<string | null>(null);
 
   // Initialize bracket on mount
@@ -259,6 +261,15 @@ function BracketApp() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
       {showConfetti && <Confetti />}
+      {showReportCard && (
+        <BracketReportCard
+          bracket={bracket}
+          teams={teamsMap}
+          simulationResults={simulationResults}
+          poolConfig={poolConfig}
+          onClose={() => setShowReportCard(false)}
+        />
+      )}
       {/* Header */}
       <Header
         mode={mode}
@@ -421,6 +432,14 @@ function BracketApp() {
                   >
                     Export / Share
                   </button>
+                  {completionStats.picked > 0 && (
+                    <button
+                      onClick={() => setShowReportCard(true)}
+                      className="w-full py-2 bg-gradient-to-r from-[#00274C] to-[#FF6B00] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
+                    >
+                      View Report Card
+                    </button>
+                  )}
                 </div>
 
                 {showExport && (

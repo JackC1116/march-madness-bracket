@@ -64,6 +64,7 @@ export interface Team {
   sagarin: SagarinStats;
   profile: TeamProfile;
   recentForm?: RecentForm;
+  location?: { lat: number; lng: number };
   isFirstFour?: boolean;
   firstFourOpponentId?: string;
 }
@@ -231,6 +232,9 @@ export interface AdvancedModelSettings {
   // Contrarian value
   contrarianValue: boolean;
   contrarianStrength: number;
+
+  // Travel distance
+  travelDistance: boolean;
 }
 
 export const DEFAULT_ADVANCED_SETTINGS: AdvancedModelSettings = {
@@ -256,7 +260,18 @@ export const DEFAULT_ADVANCED_SETTINGS: AdvancedModelSettings = {
 
   contrarianValue: false,
   contrarianStrength: 0.3,
+
+  travelDistance: false,
 };
+
+// Saved brackets
+export interface SavedBracket {
+  id: string;
+  name: string;
+  bracket: BracketState;
+  createdAt: string;
+  champion?: string; // team name
+}
 
 // App state
 export interface PickHistoryEntry {
@@ -288,4 +303,5 @@ export interface AppState {
   undoneActions: PickHistoryEntry[];
   comparisonBracket: BracketState | null;
   advancedSettings: AdvancedModelSettings;
+  savedBrackets: SavedBracket[];
 }
