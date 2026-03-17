@@ -670,6 +670,13 @@ function BracketApp() {
         <aside className={`border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
           {selectedMatchup && selectedTeamA && selectedTeamB ? (
             <div className="space-y-0">
+              <button
+                onClick={() => setSelectedMatchupId(null)}
+                className="w-full flex items-center justify-between px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 transition"
+              >
+                <span>Matchup Detail</span>
+                <span className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">✕ Close</span>
+              </button>
               <MatchupCard
                 matchup={selectedMatchup}
                 teamA={selectedTeamA}

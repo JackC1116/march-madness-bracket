@@ -68,8 +68,14 @@ export default function BracketReportCard({
     return (simulationResults.teamResults[champion.id]?.championshipProb ?? 0) * 100;
   }, [champion, simulationResults]);
 
-  // --- Upsets ---
-  const upsetCount = useMemo(() => pickedMatchups.filter((m) => m.isUpset).length, [pickedMatchups]);
+  // --- Upsets (meaningful ones: lower seed wins AND seed gap >= 2) ---
+  const upsetCount = useMemo(() => pickedMatchups.filter((m) => {
+    if (!m.isUpset || !m.winnerId || !m.teamAId || !m.teamBId) return false;
+    const winner = teams[m.winnerId];
+    const loser = teams[m.winnerId === m.teamAId ? m.teamBId : m.teamAId];
+    if (!winner || !loser) return false;
+    return winner.seed - loser.seed >= 2; // Only count if seed gap is meaningful
+  }).length, [pickedMatchups, teams]);
   const totalGames = pickedMatchups.length;
 
   // --- Risk Level ---
