@@ -297,8 +297,8 @@ function BracketApp() {
           )}
         </main>
 
-        {/* Right Sidebar — Matchup Detail / Claude Chat */}
-        <aside className="w-full lg:w-80 xl:w-96 border-l border-gray-200 bg-white overflow-y-auto lg:h-[calc(100vh-64px)] shrink-0">
+        {/* Right Sidebar — Matchup Detail / Claude Chat (only when matchup selected) */}
+        <aside className={`border-l border-gray-200 bg-white overflow-y-auto lg:h-[calc(100vh-64px)] shrink-0 transition-all ${selectedMatchup && selectedTeamA && selectedTeamB ? 'w-full lg:w-80 xl:w-96' : 'w-0 lg:w-0 overflow-hidden'}`}>
           {selectedMatchup && selectedTeamA && selectedTeamB ? (
             <div className="space-y-0">
               <MatchupCard
