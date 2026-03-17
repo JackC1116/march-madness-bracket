@@ -17,6 +17,19 @@ function getConfidenceColor(confidence: number): string {
   return 'border-l-red-400';
 }
 
+const UPSET_RATES: Record<string, number> = {
+  '1v16': 1.3, '2v15': 6.2, '3v14': 15.1, '4v13': 21.3,
+  '5v12': 35.6, '6v11': 37.2, '7v10': 39.5, '8v9': 48.1,
+};
+
+function getUpsetRate(winnerSeed: number, loserSeed: number): number | null {
+  if (winnerSeed <= loserSeed) return null; // not an upset
+  const high = Math.max(winnerSeed, loserSeed);
+  const low = Math.min(winnerSeed, loserSeed);
+  const key = `${low}v${high}`;
+  return UPSET_RATES[key] ?? null;
+}
+
 function getSeedColorClasses(seed: number): string {
   if (seed <= 4) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
   if (seed <= 8) return 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200';
@@ -166,33 +179,51 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
     onPickWinner(matchup.id, teamId);
   };
 
+  // Compute upset rate badge
+  let upsetBadge: { rate: number; winnerSeed: number } | null = null;
+  if (matchup.winnerId && teamA && teamB) {
+    const winner = matchup.winnerId === teamA.id ? teamA : teamB;
+    const loser = matchup.winnerId === teamA.id ? teamB : teamA;
+    const rate = getUpsetRate(winner.seed, loser.seed);
+    if (rate !== null) {
+      upsetBadge = { rate, winnerSeed: winner.seed };
+    }
+  }
+
   return (
-    <div
-      onClick={() => onSelectMatchup(matchup.id)}
-      className={`
-        rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-700 shadow-xs dark:shadow-gray-900/50 dark:border dark:border-gray-600
-        ${isSelected ? 'ring-2 ring-blue-400 shadow-md' : 'hover:shadow'}
-        ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300 dark:border-l-gray-600'}
-        w-[130px]
-      `}
-    >
-      <TeamRow
-        team={teamA}
-        winProb={winProbA}
-        isWinner={matchup.winnerId === matchup.teamAId}
-        isLocked={matchup.locked}
-        isUpset={matchup.isUpset && matchup.winnerId === matchup.teamAId}
-        onClick={teamA ? (e) => handlePick(e, teamA.id) : undefined}
-      />
-      <div className="border-t border-gray-100 dark:border-gray-700" />
-      <TeamRow
-        team={teamB}
-        winProb={winProbB}
-        isWinner={matchup.winnerId === matchup.teamBId}
-        isLocked={matchup.locked}
-        isUpset={matchup.isUpset && matchup.winnerId === matchup.teamBId}
-        onClick={teamB ? (e) => handlePick(e, teamB.id) : undefined}
-      />
+    <div className="flex flex-col items-center">
+      <div
+        onClick={() => onSelectMatchup(matchup.id)}
+        className={`
+          rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-700 shadow-xs dark:shadow-gray-900/50 dark:border dark:border-gray-600
+          ${isSelected ? 'ring-2 ring-blue-400 shadow-md' : 'hover:shadow'}
+          ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300 dark:border-l-gray-600'}
+          w-[130px]
+        `}
+      >
+        <TeamRow
+          team={teamA}
+          winProb={winProbA}
+          isWinner={matchup.winnerId === matchup.teamAId}
+          isLocked={matchup.locked}
+          isUpset={matchup.isUpset && matchup.winnerId === matchup.teamAId}
+          onClick={teamA ? (e) => handlePick(e, teamA.id) : undefined}
+        />
+        <div className="border-t border-gray-100 dark:border-gray-700" />
+        <TeamRow
+          team={teamB}
+          winProb={winProbB}
+          isWinner={matchup.winnerId === matchup.teamBId}
+          isLocked={matchup.locked}
+          isUpset={matchup.isUpset && matchup.winnerId === matchup.teamBId}
+          onClick={teamB ? (e) => handlePick(e, teamB.id) : undefined}
+        />
+      </div>
+      {upsetBadge && (
+        <div className="mt-0.5 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 whitespace-nowrap">
+          🔥 {upsetBadge.winnerSeed}-seeds win {upsetBadge.rate}% of the time
+        </div>
+      )}
     </div>
   );
 }

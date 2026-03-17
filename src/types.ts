@@ -217,4 +217,5 @@ export interface AppState {
   simulationIterations: number;
   pickHistory: PickHistoryEntry[];
   undoneActions: PickHistoryEntry[];
+  comparisonBracket: BracketState | null;
 }

@@ -39,3 +39,143 @@ body {
 .dark ::-webkit-scrollbar-thumb {
   background: #4b5563;
 }
+
+/* ===== Confetti Animation ===== */
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== Print-Optimized Styles ===== */
+@media print {
+  @page {
+    size: landscape;
+    margin: 0.5in;
+  }
+
+  /* Force light theme for print */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9px !important;
+  }
+
+  /* Print header - shown only in print */
+  body::before {
+    content: "Bracket Assist \2014  2026 NCAA Tournament";
+    display: block;
+    visibility: visible !important;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #00274C;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #00274C;
+    margin-bottom: 8px;
+  }
+
+  /* Hide everything except the bracket */
+  aside,
+  nav,
+  header,
+  [data-sidebar],
+  [data-header],
+  [data-api-banner],
+  [data-undo-redo],
+  [data-completion-tracker],
+  [class*="sidebar"],
+  [class*="Sidebar"],
+  [class*="header"],
+  [class*="Header"],
+  [class*="banner"],
+  [class*="Banner"],
+  [class*="toolbar"],
+  [class*="Toolbar"],
+  [class*="tracker"],
+  [class*="Tracker"],
+  [class*="first-four"],
+  [class*="FirstFour"],
+  [class*="first_four"],
+  #bracket-print-styles {
+    display: none !important;
+  }
+
+  /* Show the bracket full width */
+  main {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main > * {
+    visibility: visible !important;
+  }
+
+  /* Remove decorative styles for cleaner printing */
+  * {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+  }
+
+  /* Override dark mode colors */
+  .dark body,
+  .dark * {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Tighter spacing for bracket matchups */
+  [class*="matchup"],
+  [class*="Matchup"],
+  [class*="game"],
+  [class*="Game"] {
+    padding: 2px 4px !important;
+    margin: 1px 0 !important;
+    border: 1px solid #ccc !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Ensure no overflow issues */
+  [class*="bracket"],
+  [class*="Bracket"] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Reduce round header sizes */
+  [class*="round"],
+  [class*="Round"] {
+    font-size: 9px !important;
+    padding: 2px !important;
+  }
+
+  /* Seed numbers */
+  [class*="seed"],
+  [class*="Seed"] {
+    font-size: 7px !important;
+  }
+
+  /* Team names */
+  [class*="team"],
+  [class*="Team"] {
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Remove borders from container elements */
+  [class*="border"] {
+    border-color: #ddd !important;
+  }
+
+  /* Ensure content fits one page */
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}

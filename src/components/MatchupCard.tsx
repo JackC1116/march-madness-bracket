@@ -1,4 +1,22 @@
+import { useMemo } from 'react';
 import type { Matchup, Team, MatchupNarrative } from '../types';
+
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+
+function estimatePublicPickPct(teamAId: string, seedA: number, teamBId: string, seedB: number): number {
+  const noise = (Math.abs(hashCode(teamAId + teamBId)) % 100) / 1000 - 0.05;
+  const diff = seedB - seedA;
+  if (diff === 0) return 0.5 + noise;
+  const base = 0.5 + diff * 0.035;
+  return Math.min(0.97, Math.max(0.03, base + noise));
+}
 
 interface MatchupCardProps {
   matchup: Matchup;
@@ -78,6 +96,16 @@ function ProbabilityBar({ probA }: { probA: number }) {
 export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }: MatchupCardProps) {
   const winProbA = matchup.winProbA ?? 0.5;
 
+  // Deterministic public pick percentage
+  const publicPickA = useMemo(
+    () => estimatePublicPickPct(teamA.id, teamA.seed, teamB.id, teamB.seed),
+    [teamA.id, teamA.seed, teamB.id, teamB.seed],
+  );
+  const publicPctA = Math.round(publicPickA * 100);
+  const publicPctB = 100 - publicPctA;
+  const publicFavoriteId = publicPickA >= 0.5 ? teamA.id : teamB.id;
+  const isContrarianPick = matchup.winnerId !== null && matchup.winnerId !== publicFavoriteId;
+
   const kenpomBetter = teamA.kenpom.adjEM > teamB.kenpom.adjEM ? 'A' : 'B';
   const bartBetter = teamA.barttorvik.barthag > teamB.barttorvik.barthag ? 'A' : 'B';
   const netBetter = teamA.net.rank < teamB.net.rank ? 'A' : 'B';
@@ -140,6 +168,30 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       {/* Win probability bar */}
       <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
         <ProbabilityBar probA={winProbA} />
+      </div>
+
+      {/* Public pick percentages */}
+      <div className="px-5 py-2.5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 dark:bg-gray-800/50">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Public Picks</span>
+          {isContrarianPick && (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+              Contrarian pick! 🔄
+            </span>
+          )}
+        </div>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className={`text-xs font-bold ${publicPickA >= 0.5 ? 'text-[#00274C] dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'}`}>
+            {teamA.name} {publicPctA}%
+          </span>
+          <span className={`text-xs font-bold ${publicPickA < 0.5 ? 'text-[#FF6B00] dark:text-orange-300' : 'text-gray-500 dark:text-gray-400'}`}>
+            {teamB.name} {publicPctB}%
+          </span>
+        </div>
+        <div className="flex h-1.5 rounded-full overflow-hidden mt-1">
+          <div className="transition-all duration-300 bg-[#00274C] dark:bg-blue-400" style={{ width: `${publicPctA}%`, opacity: publicPickA >= 0.5 ? 1 : 0.4 }} />
+          <div className="transition-all duration-300 bg-[#FF6B00] dark:bg-orange-400" style={{ width: `${publicPctB}%`, opacity: publicPickA < 0.5 ? 1 : 0.4 }} />
+        </div>
       </div>
 
       {/* Stats comparison */}

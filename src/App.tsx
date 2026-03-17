@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { AppProvider, useAppState } from './context/AppContext';
 import { useBracket } from './hooks/useBracket';
 import { useSimulation } from './hooks/useSimulation';
@@ -22,6 +22,42 @@ import ClaudeChat from './components/ClaudeChat';
 import MultiBracketView from './components/MultiBracketView';
 import ExportPanel from './components/ExportPanel';
 import GuidedPicks from './components/GuidedPicks';
+import BracketComparison from './components/BracketComparison';
+
+function Confetti() {
+  const colors = ['#00274C', '#FF6B00', '#22c55e', '#eab308', '#ef4444', '#8b5cf6'];
+  const particles = useMemo(() => Array.from({ length: 60 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 2,
+    duration: 2 + Math.random() * 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    size: 6 + Math.random() * 8,
+    isCircle: Math.random() > 0.5,
+    rotation: Math.random() * 360,
+  })), []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+      {particles.map(p => (
+        <div key={p.id} className="absolute" style={{
+          left: `${p.left}%`,
+          top: '-20px',
+          width: p.size,
+          height: p.size,
+          backgroundColor: p.color,
+          animationName: 'confetti-fall',
+          animationTimingFunction: 'ease-in',
+          animationFillMode: 'forwards',
+          animationDelay: `${p.delay}s`,
+          animationDuration: `${p.duration}s`,
+          borderRadius: p.isCircle ? '50%' : '2px',
+          transform: `rotate(${p.rotation}deg)`,
+        }} />
+      ))}
+    </div>
+  );
+}
 
 function BracketApp() {
   const { state, dispatch } = useAppState();
@@ -29,7 +65,7 @@ function BracketApp() {
     mode, weights, upsetAppetite, biases, claudeBiases,
     poolConfig, bracket, simulationResults, narratives,
     guidedPickIndex, multiBrackets, claudeApiKey, isSimulating, theme,
-    simulationIterations, pickHistory, undoneActions,
+    simulationIterations, pickHistory, undoneActions, comparisonBracket,
   } = state;
 
   const { pickWinner, lockPick: _lockPick, resetBracket, autoFillBracket } = useBracket();
@@ -40,6 +76,9 @@ function BracketApp() {
   const [leftPanel, setLeftPanel] = useState<'controls' | 'analysis'>('controls');
   const [showExport, setShowExport] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const prevChampionRef = useRef<string | null>(null);
 
   // Initialize bracket on mount
   useEffect(() => {
@@ -70,6 +109,21 @@ function BracketApp() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dispatch]);
+
+  // Detect championship winner and trigger confetti
+  useEffect(() => {
+    const champMatchup = Object.values(bracket.matchups).find(
+      (m) => m.round === 'Championship'
+    );
+    const champWinner = champMatchup?.winnerId ?? null;
+    if (champWinner && champWinner !== prevChampionRef.current) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 4000);
+      prevChampionRef.current = champWinner;
+      return () => clearTimeout(timer);
+    }
+    prevChampionRef.current = champWinner;
+  }, [bracket.matchups]);
 
   // Build teams lookup
   const teamsMap = bracket.teams;
@@ -146,11 +200,22 @@ function BracketApp() {
     dispatch({ type: 'REDO' });
   }, [dispatch]);
 
+  const handleCompare = useCallback((compBracket: import('./types').BracketState) => {
+    dispatch({ type: 'SET_COMPARISON_BRACKET', payload: compBracket });
+    setShowComparison(true);
+  }, [dispatch]);
+
+  const handleCloseComparison = useCallback(() => {
+    dispatch({ type: 'CLEAR_COMPARISON_BRACKET' });
+    setShowComparison(false);
+  }, [dispatch]);
+
   const canUndo = pickHistory.length > 0;
   const canRedo = undoneActions.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
+      {showConfetti && <Confetti />}
       {/* Header */}
       <Header
         mode={mode}
@@ -308,7 +373,7 @@ function BracketApp() {
                 </div>
 
                 {showExport && (
-                  <ExportPanel bracket={bracket} teams={teamsMap} />
+                  <ExportPanel bracket={bracket} teams={teamsMap} onCompare={handleCompare} />
                 )}
               </>
             ) : (
@@ -380,7 +445,39 @@ function BracketApp() {
             </button>
           </div>
 
-          {mode === 'guided' ? (
+          {/* Comparison banner */}
+          {comparisonBracket && !showComparison && (
+            <div className="bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800 px-4 py-2 flex items-center justify-between">
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                A friend's bracket is loaded for comparison.
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowComparison(true)}
+                  className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  View Comparison
+                </button>
+                <button
+                  onClick={handleCloseComparison}
+                  className="px-3 py-1 text-xs font-medium border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showComparison && comparisonBracket ? (
+            <div className="p-4 overflow-y-auto">
+              <BracketComparison
+                myBracket={bracket}
+                compBracket={comparisonBracket}
+                teams={teamsMap}
+                onClose={handleCloseComparison}
+              />
+            </div>
+          ) : mode === 'guided' ? (
             <div className="p-4">
               <GuidedPicks
                 bracket={bracket}

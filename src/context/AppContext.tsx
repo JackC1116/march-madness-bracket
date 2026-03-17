@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, type Dispatch, type ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef, type Dispatch, type ReactNode } from 'react';
 import {
   type AppState,
   type AppMode,
@@ -42,7 +42,10 @@ type AppAction =
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'RESET_BRACKET' }
-  | { type: 'AUTO_FILL_BRACKET' };
+  | { type: 'AUTO_FILL_BRACKET' }
+  | { type: 'CLEAR_SAVED_STATE' }
+  | { type: 'SET_COMPARISON_BRACKET'; payload: BracketState }
+  | { type: 'CLEAR_COMPARISON_BRACKET' };
 
 // ── Round ordering for propagation logic ──────────────────────
 
@@ -393,6 +396,16 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'AUTO_FILL_BRACKET':
       return handleAutoFill(state);
 
+    case 'CLEAR_SAVED_STATE':
+      localStorage.removeItem(STORAGE_KEY);
+      return { ...defaultState };
+
+    case 'SET_COMPARISON_BRACKET':
+      return { ...state, comparisonBracket: action.payload };
+
+    case 'CLEAR_COMPARISON_BRACKET':
+      return { ...state, comparisonBracket: null };
+
     default:
       return state;
   }
@@ -426,7 +439,30 @@ const defaultState: AppState = {
   simulationIterations: 10000,
   pickHistory: [],
   undoneActions: [],
+  comparisonBracket: null,
 };
+
+// ── localStorage persistence ──────────────────────────────────
+
+const STORAGE_KEY = 'bracket-assist-state';
+
+/** Keys to strip before persisting (transient runtime state). */
+const TRANSIENT_KEYS: (keyof AppState)[] = ['isSimulating'];
+
+function loadSavedState(): AppState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<AppState>;
+      // Merge with defaultState so any newly-added keys have defaults,
+      // and force transient fields to safe values.
+      return { ...defaultState, ...parsed, isSimulating: false };
+    }
+  } catch {
+    // Corrupted or unavailable — fall through to default
+  }
+  return { ...defaultState };
+}
 
 // ── Context ───────────────────────────────────────────────────
 
@@ -438,7 +474,32 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, defaultState);
+  const [state, dispatch] = useReducer(appReducer, undefined, loadSavedState);
+
+  // Debounced save to localStorage on every state change
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = setTimeout(() => {
+      try {
+        // Strip transient keys before persisting
+        const toSave = { ...state } as Record<string, unknown>;
+        for (const key of TRANSIENT_KEYS) {
+          delete toSave[key];
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch {
+        // localStorage full or unavailable — silently ignore
+      }
+    }, 100);
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [state]);
 
   // Apply dark mode class on document.documentElement
   useEffect(() => {

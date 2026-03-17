@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
+import html2canvas from 'html2canvas';
 import type { BracketState, Team, Round } from '../types';
+import { decodeBracketFromURL } from '../utils/share';
 
 interface ExportPanelProps {
   bracket: BracketState;
   teams: Record<string, Team>;
+  onCompare?: (comparisonBracket: BracketState) => void;
 }
 
 const ROUND_ORDER: Round[] = ['R64', 'R32', 'Sweet 16', 'Elite 8', 'Final Four', 'Championship'];
@@ -71,9 +74,12 @@ function compressBracketToHash(bracket: BracketState): string {
   }
 }
 
-export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
+export default function ExportPanel({ bracket, teams, onCompare }: ExportPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied'>('idle');
   const [linkState, setLinkState] = useState<'idle' | 'copied'>('idle');
+  const [imageState, setImageState] = useState<'idle' | 'generating' | 'done'>('idle');
+  const [compareInput, setCompareInput] = useState('');
+  const [compareError, setCompareError] = useState<string | null>(null);
 
   const totalPicks = Object.values(bracket.matchups).filter((m) => m.winnerId).length;
   const totalGames = Object.values(bracket.matchups).length;
@@ -131,6 +137,55 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
     });
   }, [bracket, teams]);
 
+  const captureBracket = useCallback(async () => {
+    const bracketEl = document.querySelector('main > div:last-child') as HTMLElement;
+    if (!bracketEl) return null;
+    const canvas = await html2canvas(bracketEl, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+    });
+    return canvas;
+  }, []);
+
+  const handleDownloadImage = useCallback(async () => {
+    setImageState('generating');
+    try {
+      const canvas = await captureBracket();
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = 'bracket-2026.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setImageState('done');
+      setTimeout(() => setImageState('idle'), 2000);
+    } catch {
+      setImageState('idle');
+    }
+  }, [captureBracket]);
+
+  const handleShareImage = useCallback(async () => {
+    if (!navigator.share) return;
+    setImageState('generating');
+    try {
+      const canvas = await captureBracket();
+      if (!canvas) return;
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/png')
+      );
+      if (!blob) return;
+      const file = new File([blob], 'bracket-2026.png', { type: 'image/png' });
+      await navigator.share({
+        title: 'My 2026 NCAA Tournament Bracket',
+        files: [file],
+      });
+      setImageState('done');
+      setTimeout(() => setImageState('idle'), 2000);
+    } catch {
+      setImageState('idle');
+    }
+  }, [captureBracket]);
+
   const handleShareLink = useCallback(() => {
     const hash = compressBracketToHash(bracket);
     const url = `${window.location.origin}${window.location.pathname}#bracket=${hash}`;
@@ -181,6 +236,55 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
 
       {/* Export options */}
       <div className="p-5 grid grid-cols-2 gap-3">
+        {/* Download as Image */}
+        <button
+          onClick={handleDownloadImage}
+          disabled={imageState === 'generating'}
+          className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group disabled:opacity-60 disabled:cursor-wait"
+        >
+          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
+            {imageState === 'generating' ? (
+              <svg className="w-5 h-5 text-gray-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+          </div>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+            {imageState === 'generating' ? 'Generating...' : imageState === 'done' ? 'Downloaded!' : 'Download Image'}
+          </span>
+          <span className="text-[10px] text-gray-400">Save as PNG</span>
+        </button>
+
+        {/* Share Image (Web Share API) */}
+        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
+          <button
+            onClick={handleShareImage}
+            disabled={imageState === 'generating'}
+            className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group disabled:opacity-60 disabled:cursor-wait"
+          >
+            <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center transition-colors">
+              {imageState === 'generating' ? (
+                <svg className="w-5 h-5 text-gray-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
+            </div>
+            <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Share Image</span>
+            <span className="text-[10px] text-gray-400">Share via device</span>
+          </button>
+        )}
+
         {/* Print PDF */}
         <button
           onClick={handlePrintPDF}
@@ -253,6 +357,73 @@ export default function ExportPanel({ bracket, teams }: ExportPanelProps) {
           </pre>
         </details>
       </div>
+
+      {/* Compare Brackets */}
+      {onCompare && (
+        <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-700 pt-4">
+          <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Compare Brackets</h4>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+            Paste a friend's shared bracket URL or hash to compare picks side by side.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={compareInput}
+              onChange={(e) => {
+                setCompareInput(e.target.value);
+                setCompareError(null);
+              }}
+              placeholder="Paste bracket URL or hash..."
+              className="flex-1 px-3 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+            />
+            <button
+              onClick={() => {
+                if (!compareInput.trim()) {
+                  setCompareError('Please paste a bracket URL or hash.');
+                  return;
+                }
+                // Extract the hash portion from a full URL or use raw input
+                let hashStr = compareInput.trim();
+                const hashIdx = hashStr.indexOf('#bracket=');
+                if (hashIdx !== -1) {
+                  hashStr = hashStr.slice(hashIdx);
+                } else if (!hashStr.startsWith('#bracket=')) {
+                  // Assume it's a raw encoded string
+                  hashStr = hashStr;
+                }
+                const decoded = decodeBracketFromURL(hashStr);
+                if (!decoded || Object.keys(decoded).length === 0) {
+                  setCompareError('Invalid bracket data. Check the URL or hash and try again.');
+                  return;
+                }
+                // Build a BracketState from the decoded picks by cloning current bracket structure
+                const compMatchups = { ...bracket.matchups };
+                for (const [matchupId, matchup] of Object.entries(compMatchups)) {
+                  compMatchups[matchupId] = {
+                    ...matchup,
+                    winnerId: decoded[matchupId] ?? null,
+                    isUpset: false,
+                    locked: false,
+                  };
+                }
+                const comparisonBracket = {
+                  matchups: compMatchups,
+                  teams: bracket.teams,
+                };
+                setCompareError(null);
+                setCompareInput('');
+                onCompare(comparisonBracket);
+              }}
+              className="px-4 py-2 text-xs font-medium bg-[#00274C] dark:bg-blue-600 text-white rounded-lg hover:bg-[#003366] dark:hover:bg-blue-500 transition"
+            >
+              Compare
+            </button>
+          </div>
+          {compareError && (
+            <p className="mt-2 text-xs text-red-600 dark:text-red-400">{compareError}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
