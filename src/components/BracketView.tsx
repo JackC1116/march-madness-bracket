@@ -433,7 +433,7 @@ export default function BracketView({
   const firstFourGames = allMatchups.filter((m) => m.round === 'First Four');
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full">
       <div className="inline-block min-w-max px-2 py-1">
         {/* First Four */}
         {firstFourGames.length > 0 && (
