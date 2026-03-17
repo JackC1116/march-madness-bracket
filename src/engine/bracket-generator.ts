@@ -199,7 +199,8 @@ function pickWinner(
 }
 
 /**
- * Resolve First Four matchups deterministically (pick higher CPR).
+ * Resolve First Four matchups using probability-based selection.
+ * Respects the simulation's win probabilities rather than always picking the favorite.
  */
 function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): Team[] {
   const firstFour = teams.filter((t) => t.isFirstFour);
@@ -213,7 +214,11 @@ function resolveFirstFour(teams: Team[], cprMap: Record<string, number>): Team[]
     if (opp) {
       processed.add(team.id);
       processed.add(opp.id);
-      resolved.push(cprMap[team.id] >= cprMap[opp.id] ? team : opp);
+      // Use CPR differential to compute win probability, then sample
+      const diff = cprMap[team.id] - cprMap[opp.id];
+      const probTeamWins = 1 / (1 + Math.exp(-5 * diff));
+      const winner = Math.random() < probTeamWins ? team : opp;
+      resolved.push(winner);
     } else {
       resolved.push(team);
     }
