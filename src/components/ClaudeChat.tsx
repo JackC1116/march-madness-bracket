@@ -120,16 +120,16 @@ export default function ClaudeChat({ matchupId, teams, bracket, apiKey }: Claude
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-[600px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col h-[600px]">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 shrink-0">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: '#00274C' }}>
             AI
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900">Claude Analysis</h3>
-            <p className="text-[10px] text-gray-400">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Claude Analysis</h3>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500">
               {matchup && teamA && teamB
                 ? `Discussing: ${teamA.name} vs ${teamB.name}`
                 : 'Select a matchup to get started'}

@@ -52,18 +52,18 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
   const roundLabels = ['R64', 'R32', 'Sweet 16', 'Elite 8', 'Final Four', 'Championship'];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <h3 className="text-sm font-bold text-gray-900">Pool Configuration</h3>
-        <p className="text-xs text-gray-400 mt-0.5">
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 dark:border-gray-700">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Pool Configuration</h3>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
           Tailor bracket strategy to your pool&apos;s rules
         </p>
       </div>
 
       {/* Pool size */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">
           Pool Size
         </label>
         <div className="flex items-center gap-3">
@@ -73,7 +73,7 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
             max={10000}
             value={config.poolSize}
             onChange={(e) => updateConfig({ poolSize: Math.max(2, parseInt(e.target.value, 10) || 2) })}
-            className="w-24 text-sm font-bold border border-gray-200 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 tabular-nums"
+            className="w-24 text-sm font-bold border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200 tabular-nums"
           />
           <span className="text-xs text-gray-400">entries</span>
         </div>
@@ -95,14 +95,14 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-400 mt-2">
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2">
           Larger pools favor higher-variance strategies. Smaller pools favor chalk.
         </p>
       </div>
 
       {/* Scoring system */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">
           Scoring System
         </label>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
@@ -114,8 +114,8 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
                 px-3 py-2.5 rounded-lg border text-center transition-all
                 ${
                   currentSystemKey === key
-                    ? 'border-blue-300 bg-blue-50 shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 shadow-sm'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }
               `}
             >
@@ -137,7 +137,7 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
         </div>
 
         {/* Points by round (always visible, editable when custom) */}
-        <div className="mt-3 bg-gray-50 rounded-lg p-3">
+        <div className="mt-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
           <div className="grid grid-cols-6 gap-2">
             {roundLabels.map((label, i) => (
               <div key={label} className="text-center">
@@ -154,7 +154,7 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
                     className="w-full text-xs text-center font-bold border border-gray-200 rounded px-1 py-1 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   />
                 ) : (
-                  <span className="text-sm font-bold text-gray-700 tabular-nums">
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200 tabular-nums">
                     {config.scoringSystem.pointsByRound[i]}
                   </span>
                 )}
@@ -165,8 +165,8 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
       </div>
 
       {/* Number of brackets (multi mode) */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">
           Number of Brackets
         </label>
         <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
               background: `linear-gradient(to right, #00274C ${(config.numBrackets / 25) * 100}%, #e5e7eb ${(config.numBrackets / 25) * 100}%)`,
             }}
           />
-          <span className="text-sm font-bold text-gray-900 tabular-nums w-8 text-center">
+          <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums w-8 text-center">
             {config.numBrackets}
           </span>
         </div>
@@ -193,7 +193,7 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
 
       {/* Archetypes */}
       <div className="px-5 py-4">
-        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+        <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">
           Bracket Archetypes
         </label>
         <p className="text-[10px] text-gray-400 mb-3">
@@ -210,8 +210,8 @@ export default function PoolConfig({ config, onChange }: PoolConfigProps) {
                   flex items-start gap-2.5 px-3 py-3 rounded-lg border text-left transition-all
                   ${
                     isActive
-                      ? 'border-blue-300 bg-blue-50 shadow-sm'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }
                 `}
               >

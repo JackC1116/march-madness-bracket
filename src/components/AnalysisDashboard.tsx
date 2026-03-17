@@ -27,10 +27,10 @@ function HorizontalBar({
   return (
     <div className="flex items-center gap-2 py-1">
       <div className="w-32 text-right shrink-0">
-        <span className="text-xs font-medium text-gray-700 truncate block">{label}</span>
+        <span className="text-xs font-medium text-gray-700 dark:text-gray-200 truncate block">{label}</span>
         {subLabel && <span className="text-[9px] text-gray-400">{subLabel}</span>}
       </div>
-      <div className="flex-1 h-5 bg-gray-100 rounded-sm overflow-hidden relative">
+      <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-700 rounded-sm overflow-hidden relative">
         <div
           className="h-full rounded-sm transition-all duration-500"
           style={{ width: `${Math.max(pct, 1)}%`, backgroundColor: color }}
@@ -159,16 +159,16 @@ export default function AnalysisDashboard({
   }, [upsetGrid]);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-gray-900">Analysis Dashboard</h3>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Analysis Dashboard</h3>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             Based on {simulationResults.iterations.toLocaleString()} simulations
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
           <span className="text-xs text-gray-400">Expected Score</span>
           <span className="text-lg font-bold tabular-nums" style={{ color: '#00274C' }}>
             {expectedScore.toFixed(1)}
@@ -177,10 +177,10 @@ export default function AnalysisDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-gray-700">
         {/* Championship probability */}
         <div className="px-5 py-4">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
             Championship Probability — Top 10
           </h4>
           <div className="space-y-0.5">
@@ -202,7 +202,7 @@ export default function AnalysisDashboard({
 
         {/* Final Four probability */}
         <div className="px-5 py-4">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
             Final Four Probability — Top 10
           </h4>
           <div className="space-y-0.5">
@@ -224,8 +224,8 @@ export default function AnalysisDashboard({
       </div>
 
       {/* Upset heatmap */}
-      <div className="px-5 py-4 border-t border-gray-100">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+      <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700">
+        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
           Upset Probability Heatmap
         </h4>
         {seedMatchupKeys.length === 0 ? (

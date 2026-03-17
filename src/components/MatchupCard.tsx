@@ -18,18 +18,18 @@ interface StatRowProps {
 
 function StatRow({ label, valueA, valueB, highlightA, highlightB }: StatRowProps) {
   return (
-    <div className="flex items-center text-sm py-1.5 border-b border-gray-50 last:border-0">
+    <div className="flex items-center text-sm py-1.5 border-b border-gray-50 dark:border-gray-700 last:border-0">
       <span
         className={`w-20 text-right tabular-nums ${
-          highlightA ? 'font-bold text-gray-900' : 'text-gray-600'
+          highlightA ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
         }`}
       >
         {valueA}
       </span>
-      <span className="flex-1 text-center text-xs text-gray-400 font-medium">{label}</span>
+      <span className="flex-1 text-center text-xs text-gray-400 dark:text-gray-500 font-medium">{label}</span>
       <span
         className={`w-20 text-left tabular-nums ${
-          highlightB ? 'font-bold text-gray-900' : 'text-gray-600'
+          highlightB ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
         }`}
       >
         {valueB}
@@ -72,9 +72,9 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
   const sagBetter = teamA.sagarin.rating > teamB.sagarin.rating ? 'A' : 'B';
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden max-w-lg w-full">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden max-w-lg w-full">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-gray-100" style={{ backgroundColor: '#00274C' }}>
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700" style={{ backgroundColor: '#00274C' }}>
         <div className="flex items-center justify-between">
           <span className="text-xs text-blue-200 font-medium uppercase tracking-wider">
             {matchup.region} &middot; {matchup.round}
@@ -85,18 +85,18 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       </div>
 
       {/* Team Headers */}
-      <div className="flex items-stretch border-b border-gray-100">
+      <div className="flex items-stretch border-b border-gray-100 dark:border-gray-700">
         <button
           onClick={() => onPick(teamA.id)}
-          className={`flex-1 px-4 py-3 text-center transition-colors hover:bg-blue-50 ${
-            matchup.winnerId === teamA.id ? 'bg-blue-50' : ''
+          className={`flex-1 px-4 py-3 text-center transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30 ${
+            matchup.winnerId === teamA.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''
           }`}
         >
           <div className="text-lg font-bold" style={{ color: '#00274C' }}>
             <span className="text-xs font-medium text-gray-400 mr-1">({teamA.seed})</span>
             {teamA.name}
           </div>
-          <div className="text-xs text-gray-400 mt-0.5">{teamA.conference}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{teamA.conference}</div>
           {matchup.winnerId === teamA.id && (
             <div className="mt-1 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: '#00274C' }}>
               PICKED
@@ -104,19 +104,19 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
           )}
         </button>
 
-        <div className="w-px bg-gray-200" />
+        <div className="w-px bg-gray-200 dark:bg-gray-700" />
 
         <button
           onClick={() => onPick(teamB.id)}
-          className={`flex-1 px-4 py-3 text-center transition-colors hover:bg-orange-50 ${
-            matchup.winnerId === teamB.id ? 'bg-orange-50' : ''
+          className={`flex-1 px-4 py-3 text-center transition-colors hover:bg-orange-50 dark:hover:bg-orange-900/30 ${
+            matchup.winnerId === teamB.id ? 'bg-orange-50 dark:bg-orange-900/30' : ''
           }`}
         >
           <div className="text-lg font-bold" style={{ color: '#FF6B00' }}>
             <span className="text-xs font-medium text-gray-400 mr-1">({teamB.seed})</span>
             {teamB.name}
           </div>
-          <div className="text-xs text-gray-400 mt-0.5">{teamB.conference}</div>
+          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{teamB.conference}</div>
           {matchup.winnerId === teamB.id && (
             <div className="mt-1 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: '#FF6B00' }}>
               PICKED
@@ -126,13 +126,13 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       </div>
 
       {/* Win probability bar */}
-      <div className="px-5 py-3 border-b border-gray-100">
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
         <ProbabilityBar probA={winProbA} />
       </div>
 
       {/* Stats comparison */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
           Key Metrics
         </h3>
         <StatRow
@@ -178,8 +178,8 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       </div>
 
       {/* Team profiles */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
           Play Style
         </h3>
         <div className="flex gap-4">
@@ -207,9 +207,9 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       </div>
 
       {/* Spread */}
-      <div className="px-5 py-2 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-2 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <span className="text-xs text-gray-400">Vegas Spread</span>
-        <span className="text-sm font-bold text-gray-700">
+        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
           {teamA.name}{' '}
           {winProbA >= 0.5 ? '-' : '+'}
           {Math.abs(((winProbA - 0.5) * 20)).toFixed(1)}
@@ -217,25 +217,25 @@ export default function MatchupCard({ matchup, teamA, teamB, narrative, onPick }
       </div>
 
       {/* Historical seed matchup data */}
-      <div className="px-5 py-2 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-2 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <span className="text-xs text-gray-400">Seed Matchup</span>
-        <span className="text-sm font-medium text-gray-600">
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
           #{teamA.seed} vs #{teamB.seed}
         </span>
       </div>
 
       {/* Claude narrative */}
       {narrative && (
-        <div className="px-5 py-3 border-b border-gray-100">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+        <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
             AI Analysis
           </h3>
-          <p className="text-sm text-gray-600 leading-relaxed">{narrative.narrative}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{narrative.narrative}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[10px] px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 font-medium">
+            <span className="text-[10px] px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 dark:text-gray-400 font-medium">
               Key: {narrative.keyFactor}
             </span>
-            <span className="text-[10px] px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 font-medium">
+            <span className="text-[10px] px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 dark:text-gray-400 font-medium">
               Confidence: {narrative.confidence}
             </span>
           </div>

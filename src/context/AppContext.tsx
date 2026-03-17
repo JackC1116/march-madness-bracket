@@ -1,7 +1,8 @@
-import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, type Dispatch, type ReactNode } from 'react';
 import {
   type AppState,
   type AppMode,
+  type ThemeMode,
   type ModelWeights,
   type UpsetAppetite,
   type StructuredBias,
@@ -11,6 +12,7 @@ import {
   type SimulationResults,
   type MatchupNarrative,
   type Matchup,
+  type PickHistoryEntry,
   DEFAULT_WEIGHTS,
   SCORING_SYSTEMS,
 } from '../types';
@@ -35,6 +37,10 @@ type AppAction =
   | { type: 'SET_MULTI_BRACKETS'; payload: BracketState[] }
   | { type: 'SET_CLAUDE_API_KEY'; payload: string }
   | { type: 'SET_IS_SIMULATING'; payload: boolean }
+  | { type: 'SET_THEME'; payload: ThemeMode }
+  | { type: 'SET_SIMULATION_ITERATIONS'; payload: number }
+  | { type: 'UNDO' }
+  | { type: 'REDO' }
   | { type: 'RESET_BRACKET' }
   | { type: 'AUTO_FILL_BRACKET' };
 
@@ -251,8 +257,20 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_POOL_CONFIG':
       return { ...state, poolConfig: action.payload };
 
-    case 'PICK_WINNER':
-      return handlePickWinner(state, action.payload.matchupId, action.payload.winnerId);
+    case 'PICK_WINNER': {
+      const historyEntry: PickHistoryEntry = {
+        matchupId: action.payload.matchupId,
+        winnerId: action.payload.winnerId,
+        previousWinnerId: state.bracket.matchups[action.payload.matchupId]?.winnerId ?? null,
+        previousMatchups: { ...state.bracket.matchups },
+      };
+      const newState = handlePickWinner(state, action.payload.matchupId, action.payload.winnerId);
+      return {
+        ...newState,
+        pickHistory: [...state.pickHistory, historyEntry],
+        undoneActions: [], // Clear redo stack on new pick
+      };
+    }
 
     case 'LOCK_PICK': {
       const m = state.bracket.matchups[action.payload];
@@ -311,6 +329,43 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_IS_SIMULATING':
       return { ...state, isSimulating: action.payload };
 
+    case 'SET_THEME':
+      return { ...state, theme: action.payload };
+
+    case 'SET_SIMULATION_ITERATIONS':
+      return { ...state, simulationIterations: action.payload };
+
+    case 'UNDO': {
+      if (state.pickHistory.length === 0) return state;
+      const lastEntry = state.pickHistory[state.pickHistory.length - 1];
+      // Restore the matchups snapshot from before the pick
+      return {
+        ...state,
+        bracket: { ...state.bracket, matchups: { ...lastEntry.previousMatchups } },
+        pickHistory: state.pickHistory.slice(0, -1),
+        undoneActions: [...state.undoneActions, lastEntry],
+      };
+    }
+
+    case 'REDO': {
+      if (state.undoneActions.length === 0) return state;
+      const redoEntry = state.undoneActions[state.undoneActions.length - 1];
+      // Re-apply the pick using the stored winnerId
+      const redoState = handlePickWinner(state, redoEntry.matchupId, redoEntry.winnerId);
+      // Move entry back from undone to pick history (with current matchups as previous)
+      const reappliedEntry: PickHistoryEntry = {
+        matchupId: redoEntry.matchupId,
+        winnerId: redoEntry.winnerId,
+        previousWinnerId: state.bracket.matchups[redoEntry.matchupId]?.winnerId ?? null,
+        previousMatchups: { ...state.bracket.matchups },
+      };
+      return {
+        ...redoState,
+        pickHistory: [...state.pickHistory, reappliedEntry],
+        undoneActions: state.undoneActions.slice(0, -1),
+      };
+    }
+
     case 'RESET_BRACKET': {
       const resetMatchups: Record<string, Matchup> = {};
       for (const [key, m] of Object.entries(state.bracket.matchups)) {
@@ -330,6 +385,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
         bracket: { ...state.bracket, matchups: resetMatchups },
         narratives: {},
         guidedPickIndex: 0,
+        pickHistory: [],
+        undoneActions: [],
       };
     }
 
@@ -365,6 +422,10 @@ const defaultState: AppState = {
   multiBrackets: [],
   claudeApiKey: '',
   isSimulating: false,
+  theme: 'system',
+  simulationIterations: 10000,
+  pickHistory: [],
+  undoneActions: [],
 };
 
 // ── Context ───────────────────────────────────────────────────
@@ -378,6 +439,41 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, defaultState);
+
+  // Apply dark mode class on document.documentElement
+  useEffect(() => {
+    const applyTheme = (theme: ThemeMode) => {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        // system
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+
+    applyTheme(state.theme);
+
+    // Listen for system theme changes when in 'system' mode
+    if (state.theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e: MediaQueryListEvent) => {
+        if (e.matches) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      };
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, [state.theme]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

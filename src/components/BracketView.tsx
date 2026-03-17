@@ -17,6 +17,89 @@ function getConfidenceColor(confidence: number): string {
   return 'border-l-red-400';
 }
 
+function getSeedColorClasses(seed: number): string {
+  if (seed <= 4) return 'bg-blue-100 text-blue-800';
+  if (seed <= 8) return 'bg-teal-100 text-teal-800';
+  if (seed <= 12) return 'bg-amber-100 text-amber-800';
+  return 'bg-red-100 text-red-800';
+}
+
+// ── Connector Group ──────────────────────────────────────────
+// Wraps a pair of matchups and draws bracket lines to the next round.
+// `direction` controls whether lines extend right (left-side regions) or left (right-side regions).
+function ConnectorGroup({
+  children,
+  direction,
+  matchupHeight,
+  gap,
+}: {
+  children: React.ReactNode;
+  direction: 'right' | 'left';
+  matchupHeight: number;
+  gap: number;
+}) {
+  // Total height of one matchup + gap between the pair
+  const pairHeight = matchupHeight * 2 + gap;
+  const lineLen = 8; // horizontal line length in px
+  const midY = pairHeight / 2;
+  const topY = matchupHeight / 2;
+  const botY = pairHeight - matchupHeight / 2;
+
+  const isRight = direction === 'right';
+
+  return (
+    <div className="relative" style={{ height: `${pairHeight}px` }}>
+      {children}
+      {/* SVG connector lines */}
+      <svg
+        className="absolute top-0 pointer-events-none"
+        style={{
+          [isRight ? 'right' : 'left']: `-${lineLen + 4}px`,
+          width: `${lineLen + 4}px`,
+          height: `${pairHeight}px`,
+        }}
+      >
+        {/* Top horizontal line */}
+        <line
+          x1={isRight ? 0 : lineLen + 4}
+          y1={topY}
+          x2={isRight ? lineLen : 4}
+          y2={topY}
+          stroke="#cbd5e1"
+          strokeWidth="1.5"
+        />
+        {/* Bottom horizontal line */}
+        <line
+          x1={isRight ? 0 : lineLen + 4}
+          y1={botY}
+          x2={isRight ? lineLen : 4}
+          y2={botY}
+          stroke="#cbd5e1"
+          strokeWidth="1.5"
+        />
+        {/* Vertical line connecting top and bottom */}
+        <line
+          x1={isRight ? lineLen : 4}
+          y1={topY}
+          x2={isRight ? lineLen : 4}
+          y2={botY}
+          stroke="#cbd5e1"
+          strokeWidth="1.5"
+        />
+        {/* Horizontal line from junction to next round */}
+        <line
+          x1={isRight ? lineLen : 4}
+          y1={midY}
+          x2={isRight ? lineLen + 4 : 0}
+          y2={midY}
+          stroke="#cbd5e1"
+          strokeWidth="1.5"
+        />
+      </svg>
+    </div>
+  );
+}
+
 // ── Team Row ───────────────────────────────────────────────
 interface TeamRowProps {
   team: Team | null;
@@ -30,7 +113,7 @@ interface TeamRowProps {
 function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRowProps) {
   if (!team) {
     return (
-      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 h-[22px]">
+      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-600 h-[22px]">
         <span className="text-[9px] w-3 text-center">--</span>
         <span className="text-[10px] italic flex-1 truncate">TBD</span>
       </div>
@@ -42,16 +125,19 @@ function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRo
       onClick={onClick}
       className={`
         flex items-center gap-1 px-1.5 py-[3px] transition-colors cursor-pointer h-[22px]
-        ${isWinner ? 'bg-blue-50 font-semibold' : 'hover:bg-gray-50'}
+        ${isWinner ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}
       `}
     >
-      <span className="text-[9px] w-3 text-center font-bold" style={{ color: '#00274C' }}>
+      <span className={`text-[9px] w-3.5 text-center font-bold rounded-sm px-0.5 ${getSeedColorClasses(team.seed)}`}>
         {team.seed}
       </span>
-      <span className={`text-[10px] flex-1 truncate ${isWinner ? 'text-gray-900' : 'text-gray-600'}`}>
+      <span className={`text-[10px] flex-1 truncate ${isWinner ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'}`}>
         {team.name}
       </span>
-      <span className="text-[9px] text-gray-400 tabular-nums w-6 text-right">
+      {isWinner && (
+        <span className="text-emerald-600 dark:text-emerald-400 text-[10px] leading-none">&#10003;</span>
+      )}
+      <span className="text-[9px] text-gray-400 dark:text-gray-500 tabular-nums w-6 text-right">
         {(winProb * 100).toFixed(0)}%
       </span>
       {isLocked && <span className="text-[8px]">🔒</span>}
@@ -84,9 +170,9 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
     <div
       onClick={() => onSelectMatchup(matchup.id)}
       className={`
-        rounded border-l-[3px] cursor-pointer transition-all bg-white shadow-xs
+        rounded border-l-[3px] cursor-pointer transition-all bg-white dark:bg-gray-800 shadow-xs dark:shadow-gray-900/50
         ${isSelected ? 'ring-2 ring-blue-400 shadow-md' : 'hover:shadow'}
-        ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300'}
+        ${matchup.winnerId ? getConfidenceColor(matchup.confidence) : 'border-l-gray-300 dark:border-l-gray-600'}
         w-[130px]
       `}
     >
@@ -98,7 +184,7 @@ function MatchupSlot({ matchup, teams, isSelected, onPickWinner, onSelectMatchup
         isUpset={matchup.isUpset && matchup.winnerId === matchup.teamAId}
         onClick={teamA ? (e) => handlePick(e, teamA.id) : undefined}
       />
-      <div className="border-t border-gray-100" />
+      <div className="border-t border-gray-100 dark:border-gray-700" />
       <TeamRow
         team={teamB}
         winProb={winProbB}
@@ -119,6 +205,8 @@ function RegionColumn({
   selectedMatchupId,
   onPickWinner,
   onSelectMatchup,
+  direction = 'right',
+  isLastRound = false,
 }: {
   matchups: Matchup[];
   round: Round;
@@ -126,11 +214,54 @@ function RegionColumn({
   selectedMatchupId: string | null;
   onPickWinner: (matchupId: string, winnerId: string) => void;
   onSelectMatchup: (matchupId: string) => void;
+  direction?: 'right' | 'left';
+  isLastRound?: boolean;
 }) {
   const sorted = [...matchups].sort((a, b) => a.position - b.position);
   const roundIndex = ROUND_ORDER.indexOf(round);
   // Exponential gap growth so matchups align vertically with their feeders
   const gap = roundIndex <= 0 ? 2 : roundIndex === 1 ? 26 : roundIndex === 2 ? 74 : 170;
+  const matchupHeight = 47; // approximate height of a MatchupSlot (two 22px rows + 3px border)
+
+  // Group matchups in pairs for connector lines (except last round in region)
+  const shouldConnect = !isLastRound && sorted.length >= 2;
+
+  if (shouldConnect) {
+    const pairs: Matchup[][] = [];
+    for (let i = 0; i < sorted.length; i += 2) {
+      pairs.push(sorted.slice(i, i + 2));
+    }
+    // Gap between pairs: each pair occupies matchupHeight*2+gap for inner, then
+    // we need additional spacing between groups to align with next round
+    const pairInnerGap = gap;
+    const pairOuterGap = roundIndex <= 0 ? gap + matchupHeight + 2 : gap * 2 + matchupHeight;
+
+    return (
+      <div className="flex flex-col items-center justify-center" style={{ gap: `${pairOuterGap}px` }}>
+        {pairs.map((pair, pi) => (
+          <ConnectorGroup
+            key={pi}
+            direction={direction}
+            matchupHeight={matchupHeight}
+            gap={pairInnerGap}
+          >
+            <div className="flex flex-col items-center justify-center" style={{ gap: `${pairInnerGap}px` }}>
+              {pair.map((m) => (
+                <MatchupSlot
+                  key={m.id}
+                  matchup={m}
+                  teams={teams}
+                  isSelected={selectedMatchupId === m.id}
+                  onPickWinner={onPickWinner}
+                  onSelectMatchup={onSelectMatchup}
+                />
+              ))}
+            </div>
+          </ConnectorGroup>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center" style={{ gap: `${gap}px` }}>
@@ -183,8 +314,8 @@ function RegionPair({
       </div>
 
       {/* Left region rounds: R64 -> E8 */}
-      <div className="flex items-center gap-1">
-        {regionalRounds.map((round) => (
+      <div className="flex items-center gap-3">
+        {regionalRounds.map((round, idx) => (
           <RegionColumn
             key={`${leftRegion}-${round}`}
             matchups={leftData[round] || []}
@@ -193,13 +324,15 @@ function RegionPair({
             selectedMatchupId={selectedMatchupId}
             onPickWinner={onPickWinner}
             onSelectMatchup={onSelectMatchup}
+            direction="right"
+            isLastRound={idx === regionalRounds.length - 1}
           />
         ))}
       </div>
 
       {/* Final Four game */}
       <div className="flex flex-col items-center mx-2 flex-shrink-0">
-        <span className="text-[9px] font-semibold text-gray-400 uppercase mb-0.5">FF</span>
+        <span className="text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase mb-0.5">FF</span>
         {finalFourMatchups.map((m) => (
           <MatchupSlot
             key={m.id}
@@ -211,15 +344,15 @@ function RegionPair({
           />
         ))}
         {finalFourMatchups.length === 0 && (
-          <div className="w-[130px] h-12 border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-[10px] text-gray-300">
+          <div className="w-[130px] h-12 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded flex items-center justify-center text-[10px] text-gray-300 dark:text-gray-600">
             Final Four
           </div>
         )}
       </div>
 
       {/* Right region rounds: E8 -> R64 */}
-      <div className="flex items-center gap-1">
-        {[...regionalRounds].reverse().map((round) => (
+      <div className="flex items-center gap-3">
+        {[...regionalRounds].reverse().map((round, idx) => (
           <RegionColumn
             key={`${rightRegion}-${round}`}
             matchups={rightData[round] || []}
@@ -228,6 +361,8 @@ function RegionPair({
             selectedMatchupId={selectedMatchupId}
             onPickWinner={onPickWinner}
             onSelectMatchup={onSelectMatchup}
+            direction="left"
+            isLastRound={idx === 0}
           />
         ))}
       </div>
@@ -277,14 +412,14 @@ export default function BracketView({
       <div className="inline-block min-w-max px-2 py-3">
         {/* First Four */}
         {firstFourGames.length > 0 && (
-          <div className="mb-4 pb-3 border-b border-dashed border-gray-200">
+          <div className="mb-4 pb-3 border-b border-dashed border-gray-200 dark:border-gray-700">
             <div className="text-[10px] font-bold uppercase tracking-wider text-center mb-2" style={{ color: '#FF6B00' }}>
               First Four — Dayton, OH
             </div>
             <div className="flex items-center justify-center gap-3">
               {firstFourGames.sort((a, b) => a.position - b.position).map((m) => (
                 <div key={m.id} className="flex flex-col items-center">
-                  <span className="text-[8px] text-gray-400 uppercase mb-0.5">
+                  <span className="text-[8px] text-gray-400 dark:text-gray-500 uppercase mb-0.5">
                     {m.region}
                   </span>
                   <MatchupSlot
@@ -303,9 +438,9 @@ export default function BracketView({
         {/* Round labels header */}
         <div className="flex items-center justify-center mb-2">
           <div className="w-14 flex-shrink-0" />
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
             {regionalRounds.map((r) => (
-              <div key={`l-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
+              <div key={`l-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 {r}
               </div>
             ))}
@@ -313,9 +448,9 @@ export default function BracketView({
           <div className="mx-2 w-[130px] text-center text-[9px] font-semibold uppercase tracking-wider" style={{ color: '#FF6B00' }}>
             Final Four
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
             {[...regionalRounds].reverse().map((r) => (
-              <div key={`r-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
+              <div key={`r-${r}`} className="w-[130px] text-center text-[9px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 {r}
               </div>
             ))}

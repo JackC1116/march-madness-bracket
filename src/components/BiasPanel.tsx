@@ -91,16 +91,16 @@ export default function BiasPanel({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <h3 className="text-sm font-bold text-gray-900">Biases &amp; Preferences</h3>
-        <p className="text-xs text-gray-400 mt-0.5">Override the model with your own opinions</p>
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 dark:border-gray-700">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Biases &amp; Preferences</h3>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Override the model with your own opinions</p>
       </div>
 
       {/* Upset appetite selector */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
           Upset Appetite
         </h4>
         <div className="grid grid-cols-4 gap-1.5">
@@ -114,8 +114,8 @@ export default function BiasPanel({
                   flex flex-col items-center gap-1 px-2 py-2.5 rounded-lg border transition-all text-center
                   ${
                     isActive
-                      ? 'border-blue-300 bg-blue-50 shadow-sm'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }
                 `}
               >
@@ -135,8 +135,8 @@ export default function BiasPanel({
       </div>
 
       {/* Structured biases */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
           Structured Biases
         </h4>
 
@@ -172,7 +172,7 @@ export default function BiasPanel({
             <select
               value={selectedTarget}
               onChange={(e) => setSelectedTarget(e.target.value)}
-              className="flex-1 text-xs border border-gray-200 rounded-lg px-2.5 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="flex-1 text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-2.5 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value="">
                 {isTeamBias ? 'Select team...' : 'Select conference...'}
@@ -196,7 +196,7 @@ export default function BiasPanel({
               <select
                 value={selectedRound}
                 onChange={(e) => setSelectedRound(e.target.value as Round)}
-                className="text-xs border border-gray-200 rounded-lg px-2.5 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-2.5 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
                 {ROUNDS.map((r) => (
                   <option key={r} value={r}>
@@ -244,7 +244,7 @@ export default function BiasPanel({
             {biases.map((bias, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg"
               >
                 <div className="flex items-center gap-2">
                   <span
@@ -288,17 +288,17 @@ export default function BiasPanel({
 
       {/* Claude biases (applied) */}
       {claudeBiases.length > 0 && (
-        <div className="px-5 py-3 border-b border-gray-100">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             AI-Interpreted Adjustments
           </h4>
           <div className="space-y-1.5">
             {claudeBiases.map((cb, i) => {
               const team = teams[cb.teamId];
               return (
-                <div key={i} className="px-3 py-2 bg-purple-50 rounded-lg">
+                <div key={i} className="px-3 py-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-purple-800">
+                    <span className="text-xs font-medium text-purple-800 dark:text-purple-300">
                       {team ? `(${team.seed}) ${team.name}` : cb.teamId}
                     </span>
                     <span
@@ -310,7 +310,7 @@ export default function BiasPanel({
                       {(cb.modifier * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <p className="text-[10px] text-purple-600 mt-0.5">{cb.explanation}</p>
+                  <p className="text-[10px] text-purple-600 dark:text-purple-400 mt-0.5">{cb.explanation}</p>
                 </div>
               );
             })}
@@ -320,7 +320,7 @@ export default function BiasPanel({
 
       {/* Free-text bias input */}
       <div className="px-5 py-4">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
           Free-Text Opinions
         </h4>
         <p className="text-[10px] text-gray-400 mb-2">
@@ -331,7 +331,7 @@ export default function BiasPanel({
           onChange={(e) => setFreeText(e.target.value)}
           placeholder='e.g., "I think Duke is overrated this year" or "Mid-major teams from the MVC always overperform"'
           rows={3}
-          className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2.5 resize-none text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 resize-none text-gray-700 dark:text-gray-200 dark:bg-gray-700 placeholder:text-gray-300 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
         <div className="flex justify-end mt-2">
           <button

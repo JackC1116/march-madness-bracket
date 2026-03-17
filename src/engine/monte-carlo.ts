@@ -257,6 +257,7 @@ function yieldToEventLoop(): Promise<void> {
  * @param historicalTrends - Historical tournament data (optional)
  * @param iterations - Number of simulations (default 10,000)
  * @param claudeBiases - Claude AI bias adjustments (optional)
+ * @param onProgress - Optional callback reporting progress every 500 iterations
  * @returns SimulationResults with per-team probabilities
  */
 export async function runSimulation(
@@ -266,7 +267,8 @@ export async function runSimulation(
   odds: MatchupOdds[] | undefined,
   historicalTrends: HistoricalTrends | undefined,
   iterations: number = 10000,
-  claudeBiases?: ClaudeBiasAdjustment[]
+  claudeBiases?: ClaudeBiasAdjustment[],
+  onProgress?: (completed: number, total: number) => void,
 ): Promise<SimulationResults> {
   // Compute CPR for all teams once
   const cprMap = computeAllCPR({
@@ -298,8 +300,11 @@ export async function runSimulation(
   const YIELD_INTERVAL = 500;
 
   for (let iter = 0; iter < iterations; iter++) {
-    // Periodically yield to keep UI responsive
+    // Periodically yield to keep UI responsive and report progress
     if (iter > 0 && iter % YIELD_INTERVAL === 0) {
+      if (onProgress) {
+        onProgress(iter, iterations);
+      }
       await yieldToEventLoop();
     }
 

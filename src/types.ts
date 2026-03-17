@@ -7,6 +7,7 @@ export type Round = 'First Four' | 'R64' | 'R32' | 'Sweet 16' | 'Elite 8' | 'Fin
 export type UpsetAppetite = 'conservative' | 'moderate' | 'aggressive' | 'chaos';
 export type BracketArchetype = 'chalk' | 'contrarian' | 'cinderella' | 'bold_final_four';
 export type AppMode = 'single' | 'multi' | 'guided';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface KenPomStats {
   rank: number;
@@ -190,6 +191,14 @@ export interface MatchupNarrative {
 }
 
 // App state
+export interface PickHistoryEntry {
+  matchupId: string;
+  winnerId: string;
+  previousWinnerId: string | null;
+  /** Snapshot of matchups before the pick, used for full undo restore */
+  previousMatchups: Record<string, Matchup>;
+}
+
 export interface AppState {
   mode: AppMode;
   weights: ModelWeights;
@@ -204,4 +213,8 @@ export interface AppState {
   multiBrackets: BracketState[];
   claudeApiKey: string;
   isSimulating: boolean;
+  theme: ThemeMode;
+  simulationIterations: number;
+  pickHistory: PickHistoryEntry[];
+  undoneActions: PickHistoryEntry[];
 }

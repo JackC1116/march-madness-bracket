@@ -5,6 +5,8 @@ import { DEFAULT_WEIGHTS } from '../types';
 interface WeightSlidersProps {
   weights: ModelWeights;
   onChange: (weights: ModelWeights) => void;
+  iterations?: number;
+  onIterationsChange?: (n: number) => void;
 }
 
 const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string }[] = [
@@ -17,7 +19,7 @@ const WEIGHT_KEYS: { key: keyof ModelWeights; label: string; description: string
   { key: 'experience', label: 'Experience', description: 'Tournament experience' },
 ];
 
-export default function WeightSliders({ weights, onChange }: WeightSlidersProps) {
+export default function WeightSliders({ weights, onChange, iterations, onIterationsChange }: WeightSlidersProps) {
   const handleSliderChange = useCallback(
     (changedKey: keyof ModelWeights, newValue: number) => {
       const oldValue = weights[changedKey];
@@ -67,23 +69,23 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
   const total = Object.values(weights).reduce((s, v) => s + v, 0);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-bold text-gray-900">Model Weights</h3>
-          <p className="text-xs text-gray-400 mt-0.5">Adjust how each data source influences predictions</p>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Model Weights</h3>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Adjust how each data source influences predictions</p>
         </div>
         <button
           onClick={handleReset}
-          className="px-3 py-1.5 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           Reset to defaults
         </button>
       </div>
 
       {/* Weight sum indicator */}
-      <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-50">
-        <span className="text-xs text-gray-400">Total:</span>
+      <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+        <span className="text-xs text-gray-400 dark:text-gray-500">Total:</span>
         <span
           className={`text-xs font-bold tabular-nums ${
             Math.abs(total - 1) < 0.01 ? 'text-emerald-600' : 'text-red-500'
@@ -91,7 +93,7 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
         >
           {(total * 100).toFixed(1)}%
         </span>
-        <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
           {WEIGHT_KEYS.map((w, i) => {
             const colors = [
               '#00274C', '#1a5276', '#2980b9', '#3498db', '#FF6B00', '#e67e22', '#f39c12',
@@ -129,11 +131,11 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
                     className="w-2.5 h-2.5 rounded-sm"
                     style={{ backgroundColor: colors[i] }}
                   />
-                  <span className="text-xs font-semibold text-gray-700">{w.label}</span>
-                  <span className="text-[10px] text-gray-400">{w.description}</span>
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{w.label}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500">{w.description}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold tabular-nums text-gray-900 w-12 text-right">
+                  <span className="text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100 w-12 text-right">
                     {pct}%
                   </span>
                   {isModified && (
@@ -163,7 +165,7 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
       </div>
 
       {/* Visual weight distribution */}
-      <div className="mt-4 pt-3 border-t border-gray-100">
+      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex gap-0.5 h-6 rounded-lg overflow-hidden">
           {WEIGHT_KEYS.map((w, i) => {
             const colors = [
@@ -188,6 +190,33 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
           })}
         </div>
       </div>
+
+      {/* Monte Carlo Iterations Slider */}
+      {iterations !== undefined && onIterationsChange && (
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-gray-700">Simulation Iterations</span>
+            <span className="text-xs font-bold tabular-nums text-gray-900">
+              {iterations.toLocaleString()}
+            </span>
+          </div>
+          <input
+            type="range"
+            min={1000}
+            max={50000}
+            step={1000}
+            value={iterations}
+            onChange={(e) => onIterationsChange(parseInt(e.target.value, 10))}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #00274C ${((iterations - 1000) / 49000) * 100}%, #e5e7eb ${((iterations - 1000) / 49000) * 100}%)`,
+            }}
+          />
+          <p className="text-[10px] text-gray-400 mt-1">
+            More iterations = more accurate, slower
+          </p>
+        </div>
+      )}
     </div>
   );
 }
