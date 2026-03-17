@@ -417,6 +417,24 @@ export default function AdvancedSettings({ settings, onChange }: AdvancedSetting
 
           <SectionDivider />
 
+          {/* ── Travel Distance ──────────────────────────── */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                Travel Distance
+              </span>
+              <Toggle
+                checked={settings.travelDistance}
+                onChange={(v) => update({ travelDistance: v })}
+              />
+            </div>
+            <p className={`text-[10px] leading-snug ${settings.travelDistance ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-600'}`}>
+              Give a small edge to teams playing closer to home. Accounts for crowd support and travel fatigue.
+            </p>
+          </div>
+
+          <SectionDivider />
+
           {/* Reset button */}
           <button
             onClick={handleReset}

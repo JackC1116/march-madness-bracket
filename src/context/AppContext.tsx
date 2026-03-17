@@ -14,6 +14,7 @@ import {
   type Matchup,
   type PickHistoryEntry,
   type AdvancedModelSettings,
+  type SavedBracket,
   DEFAULT_WEIGHTS,
   DEFAULT_ADVANCED_SETTINGS,
   SCORING_SYSTEMS,
@@ -49,7 +50,11 @@ type AppAction =
   | { type: 'SET_COMPARISON_BRACKET'; payload: BracketState }
   | { type: 'CLEAR_COMPARISON_BRACKET' }
   | { type: 'SET_ADVANCED_SETTINGS'; payload: AdvancedModelSettings }
-  | { type: 'SET_LUCK_FACTOR'; payload: number };
+  | { type: 'SET_LUCK_FACTOR'; payload: number }
+  | { type: 'SAVE_BRACKET'; payload: { name: string } }
+  | { type: 'LOAD_BRACKET'; payload: string }
+  | { type: 'DELETE_BRACKET'; payload: string }
+  | { type: 'RENAME_BRACKET'; payload: { id: string; name: string } };
 
 // ── Round ordering for propagation logic ──────────────────────
 
@@ -415,6 +420,49 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'SET_LUCK_FACTOR':
       return { ...state, luckFactor: Math.max(0, Math.min(0.20, action.payload)) };
+
+    case 'SAVE_BRACKET': {
+      // Find champion name
+      const champMatchup = Object.values(state.bracket.matchups).find(
+        (m) => m.round === 'Championship'
+      );
+      const championId = champMatchup?.winnerId ?? null;
+      const championName = championId ? state.bracket.teams[championId]?.name : undefined;
+
+      const newBracket: SavedBracket = {
+        id: `bracket-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: action.payload.name,
+        bracket: JSON.parse(JSON.stringify(state.bracket)),
+        createdAt: new Date().toISOString(),
+        champion: championName,
+      };
+      return { ...state, savedBrackets: [...state.savedBrackets, newBracket] };
+    }
+
+    case 'LOAD_BRACKET': {
+      const savedBracket = state.savedBrackets.find((b) => b.id === action.payload);
+      if (!savedBracket) return state;
+      return {
+        ...state,
+        bracket: JSON.parse(JSON.stringify(savedBracket.bracket)),
+        pickHistory: [],
+        undoneActions: [],
+      };
+    }
+
+    case 'DELETE_BRACKET':
+      return {
+        ...state,
+        savedBrackets: state.savedBrackets.filter((b) => b.id !== action.payload),
+      };
+
+    case 'RENAME_BRACKET':
+      return {
+        ...state,
+        savedBrackets: state.savedBrackets.map((b) =>
+          b.id === action.payload.id ? { ...b, name: action.payload.name } : b
+        ),
+      };
 
     default:
       return state;

@@ -24,6 +24,7 @@ import ExportPanel from './components/ExportPanel';
 import GuidedPicks from './components/GuidedPicks';
 import BracketComparison from './components/BracketComparison';
 import AdvancedSettings from './components/AdvancedSettings';
+import BracketManager from './components/BracketManager';
 import BracketReportCard from './components/BracketReportCard';
 
 function Confetti() {
@@ -68,7 +69,7 @@ function BracketApp() {
     poolConfig, bracket, simulationResults, narratives,
     guidedPickIndex, multiBrackets, claudeApiKey, isSimulating, theme,
     simulationIterations, pickHistory, undoneActions, comparisonBracket,
-    advancedSettings,
+    advancedSettings, savedBrackets,
   } = state;
 
   const { pickWinner, lockPick: _lockPick, resetBracket, autoFillBracket } = useBracket();
@@ -137,6 +138,7 @@ function BracketApp() {
             tempoTrapezoid: true, tempoMinRange: 64, tempoMaxRange: 72,
             recencyWeighting: true, recencyWeight: 0.15,
             contrarianValue: false, contrarianStrength: 0.3,
+            travelDistance: true,
           }});
           // Flash a subtle notification
           const toast = document.createElement('div');
@@ -398,6 +400,16 @@ function BracketApp() {
                   onRemoveBias={(i) => dispatch({ type: 'REMOVE_BIAS', payload: i })}
                   onSetAppetite={(a) => dispatch({ type: 'SET_UPSET_APPETITE', payload: a })}
                   onApplyClaudeBias={handleApplyClaudeBias}
+                />
+
+                {/* Bracket Manager */}
+                <BracketManager
+                  bracket={bracket}
+                  savedBrackets={savedBrackets}
+                  onSave={(name) => dispatch({ type: 'SAVE_BRACKET', payload: { name } })}
+                  onLoad={(id) => dispatch({ type: 'LOAD_BRACKET', payload: id })}
+                  onDelete={(id) => dispatch({ type: 'DELETE_BRACKET', payload: id })}
+                  onRename={(id, name) => dispatch({ type: 'RENAME_BRACKET', payload: { id, name } })}
                 />
 
                 {/* Action Buttons */}

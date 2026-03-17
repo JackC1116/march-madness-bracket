@@ -202,7 +202,7 @@ function simulateOnce(
       const prob = computeWinProbability(
         slotA.team, slotB.team,
         slotA.cpr, slotB.cpr,
-        'Final Four', historicalTrends, advancedSettings
+        'Final Four', historicalTrends, advancedSettings, 'Final Four'
       );
       const aWins = simulateMatchup(prob, luckFactor);
       const winner = aWins ? slotA : slotB;
@@ -222,7 +222,7 @@ function simulateOnce(
     const prob = computeWinProbability(
       finalists[0].team, finalists[1].team,
       finalists[0].cpr, finalists[1].cpr,
-      'Championship', historicalTrends, advancedSettings
+      'Championship', historicalTrends, advancedSettings, 'Final Four'
     );
     const aWins = simulateMatchup(prob, luckFactor);
     const champion = aWins ? finalists[0] : finalists[1];
