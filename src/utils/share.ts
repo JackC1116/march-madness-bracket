@@ -71,7 +71,7 @@ export function generateTextSummary(
       const matchups = Object.values(bracket.matchups)
         .filter((m) => {
           if (round === 'Final Four' || round === 'Championship') {
-            return m.round === round;
+            return m.round === round && region === 'Final Four';
           }
           return m.region === region && m.round === round;
         })

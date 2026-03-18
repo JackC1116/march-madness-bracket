@@ -254,7 +254,10 @@ function propagateFlip(
 ): void {
   const startIdx = ROUND_ORDER.indexOf(startRound);
 
-  for (const matchup of Object.values(matchups)) {
+  const sorted = Object.values(matchups).sort(
+    (a, b) => ROUND_ORDER.indexOf(a.round as Round) - ROUND_ORDER.indexOf(b.round as Round)
+  );
+  for (const matchup of sorted) {
     const roundIdx = ROUND_ORDER.indexOf(matchup.round as Round);
     if (roundIdx <= startIdx) continue;
 

@@ -11,11 +11,11 @@ export function useSimulation() {
     state;
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const abortRef = useRef<boolean>(false);
+  const invocationRef = useRef<number>(0);
   const [simulationProgress, setSimulationProgress] = useState<number>(0);
 
   const runSimulation = useCallback(async () => {
-    abortRef.current = false;
+    const myInvocation = ++invocationRef.current;
     setSimulationProgress(0);
 
     if (Object.keys(bracket.teams).length === 0) return;
@@ -32,7 +32,7 @@ export function useSimulation() {
         simulationIterations,
         claudeBiases,
         (completed, total) => {
-          if (!abortRef.current) {
+          if (invocationRef.current === myInvocation) {
             setSimulationProgress(completed / total);
           }
         },
@@ -40,14 +40,14 @@ export function useSimulation() {
         luckFactor,
       );
 
-      if (!abortRef.current) {
+      if (invocationRef.current === myInvocation) {
         setSimulationProgress(1);
         dispatch({ type: 'SET_SIMULATION_RESULTS', payload: results });
       }
     } catch (err: unknown) {
       console.error('Simulation failed:', err);
     } finally {
-      if (!abortRef.current) {
+      if (invocationRef.current === myInvocation) {
         dispatch({ type: 'SET_IS_SIMULATING', payload: false });
       }
     }
@@ -74,7 +74,8 @@ export function useSimulation() {
 
   useEffect(() => {
     return () => {
-      abortRef.current = true;
+      // Invalidate any in-flight simulation by bumping the counter
+      invocationRef.current++;
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
