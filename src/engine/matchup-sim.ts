@@ -70,7 +70,7 @@ function haversineDistance(
     Math.cos((a.lat * Math.PI) / 180) *
       Math.cos((b.lat * Math.PI) / 180) *
       sinLng * sinLng;
-  return 2 * R * Math.asin(Math.sqrt(h));
+  return 2 * R * Math.asin(Math.sqrt(Math.min(1, h)));
 }
 
 /**
@@ -210,14 +210,12 @@ function computeTrendModifier(
   if (teamAIsHigherSeed) {
     // If history says higher seeds win less than expected, reduce teamA's prob
     const historicalAdjust = historicalHigherSeedWinRate;
-    // Blend: modifier is a ratio that adjusts from pure-metric toward historical
-    // For example, if historical win rate for 5-seed vs 12-seed is 0.65 instead
-    // of the metric-implied ~0.75, modifier will be < 1.0
-    return 0.85 + 0.15 * (historicalAdjust / Math.max(historicalAdjust, 0.5));
+    // Blend: modifier nudges probability toward the historical baseline (max ~5% shift)
+    return 0.85 + 0.15 * Math.min(1, historicalAdjust / Math.max(historicalAdjust, 0.5));
   } else {
     // teamA is the lower seed (underdog)
     const upsetRate = match.upsetRate;
-    return 0.85 + 0.15 * (upsetRate / Math.max(1 - upsetRate, 0.5));
+    return 0.85 + 0.15 * Math.min(1, upsetRate / Math.max(1 - upsetRate, 0.5));
   }
 }
 

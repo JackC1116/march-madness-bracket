@@ -302,6 +302,7 @@ export function computeChampionViability(
  */
 export function computeAllCPR(context: CPRContext): Record<string, number> {
   const { allTeams, weights, biases, claudeBiases, odds, historicalTrends, advancedSettings } = context;
+  if (allTeams.length === 0) return {};
   const bounds = computeBounds(allTeams);
   const results: Record<string, number> = {};
 

@@ -19,6 +19,7 @@ import {
   DEFAULT_ADVANCED_SETTINGS,
   SCORING_SYSTEMS,
 } from '../types';
+import { FIRST_FOUR_CONFIGS } from '../data/bracket-structure';
 
 // ── Action Types ──────────────────────────────────────────────
 
@@ -94,8 +95,17 @@ function findNextMatchup(
   let nextRegion = currentMatchup.region;
 
   if (currentMatchup.round === 'First Four') {
-    // First Four → R64 propagation is handled separately via FIRST_FOUR_CONFIGS
-    return null;
+    // First Four winner goes into an R64 matchup's teamB slot
+    const ffConfig = FIRST_FOUR_CONFIGS.find(
+      (ff) => currentMatchup.teamAId === ff.teamAId || currentMatchup.teamAId === ff.teamBId
+    );
+    if (!ffConfig) return null;
+    const regionKey = ffConfig.region.toLowerCase().replace(' ', '');
+    const r64Id = `${regionKey}-r64-${ffConfig.r64Position}`;
+    const r64Matchup = matchups[r64Id];
+    if (!r64Matchup) return null;
+    const r64Slot: 'teamAId' | 'teamBId' = ffConfig.r64Slot === 'A' ? 'teamAId' : 'teamBId';
+    return { matchup: r64Matchup, slot: r64Slot };
   } else if (currentMatchup.round === 'Elite 8') {
     // Elite 8 winner → Final Four
     const pairIdx = FINAL_FOUR_PAIRINGS.findIndex(

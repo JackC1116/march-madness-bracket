@@ -355,11 +355,12 @@ export async function runSimulation(
     const avgRound = roundSums[t.id] / iterations;
 
     // Round probabilities: probability of reaching each round
+    // counts[0]=R64 appearance (always 1), counts[1]=reached R32, ..., counts[6]=champion
     const roundProbabilities: Record<string, number> = {};
     for (let i = 0; i < ROUND_ORDER.length; i++) {
-      roundProbabilities[ROUND_ORDER[i]] = counts[i + 1] / iterations;
+      roundProbabilities[ROUND_ORDER[i]] = counts[i] / iterations;
     }
-    // Champion probability
+    // Champion probability (won the championship game)
     roundProbabilities['Champion'] = counts[6] / iterations;
 
     teamResults[t.id] = {
