@@ -74,41 +74,54 @@ function roundIndex(round: string): number {
 
 // ── Pick propagation helpers ──────────────────────────────────
 
+const FINAL_FOUR_PAIRINGS: [string, string][] = [['East', 'West'], ['South', 'Midwest']];
+
 /**
- * Find the next-round matchup that this matchup feeds into.
- * Convention: matchup at position P in round N feeds into position floor(P/2) in round N+1
- * within the same region (or 'Final Four' region for Elite 8+).
+ * Find the next-round matchup that this matchup feeds into, plus which slot
+ * (teamAId or teamBId) the winner occupies. Uses 1-based positions matching
+ * the canonical scheme from bracket-structure.ts.
  */
 function findNextMatchup(
   matchups: Record<string, Matchup>,
   currentMatchup: Matchup,
-): Matchup | null {
+): { matchup: Matchup; slot: 'teamAId' | 'teamBId' } | null {
   const currentRoundIdx = roundIndex(currentMatchup.round);
   if (currentRoundIdx === -1 || currentRoundIdx >= ROUND_ORDER.length - 1) return null;
 
   const nextRound = ROUND_ORDER[currentRoundIdx + 1];
-  const nextPosition = Math.floor(currentMatchup.position / 2);
-
-  // Determine what region the next matchup lives in
+  let nextPosition: number;
+  let slot: 'teamAId' | 'teamBId';
   let nextRegion = currentMatchup.region;
-  if (nextRound === 'Final Four' || nextRound === 'Championship') {
+
+  if (currentMatchup.round === 'First Four') {
+    // First Four → R64 propagation is handled separately via FIRST_FOUR_CONFIGS
+    return null;
+  } else if (currentMatchup.round === 'Elite 8') {
+    // Elite 8 winner → Final Four
+    const pairIdx = FINAL_FOUR_PAIRINGS.findIndex(
+      ([a, b]) => a === currentMatchup.region || b === currentMatchup.region
+    );
+    if (pairIdx === -1) return null;
+    nextPosition = pairIdx + 1;
+    slot = FINAL_FOUR_PAIRINGS[pairIdx][0] === currentMatchup.region ? 'teamAId' : 'teamBId';
     nextRegion = 'Final Four';
+  } else if (currentMatchup.round === 'Final Four') {
+    // Final Four winner → Championship
+    nextPosition = 1;
+    slot = currentMatchup.position === 1 ? 'teamAId' : 'teamBId';
+    nextRegion = 'Final Four';
+  } else {
+    // Regional rounds: R64→R32, R32→S16, S16→E8
+    nextPosition = Math.floor((currentMatchup.position - 1) / 2) + 1;
+    slot = currentMatchup.position % 2 === 1 ? 'teamAId' : 'teamBId';
   }
 
   for (const m of Object.values(matchups)) {
     if (m.round === nextRound && m.region === nextRegion && m.position === nextPosition) {
-      return m;
+      return { matchup: m, slot };
     }
   }
   return null;
-}
-
-/**
- * Determine whether winnerId slots into teamA or teamB of the next matchup.
- * Even-position matchups feed teamA; odd-position matchups feed teamB.
- */
-function slotSide(position: number): 'teamAId' | 'teamBId' {
-  return position % 2 === 0 ? 'teamAId' : 'teamBId';
 }
 
 /**
@@ -141,12 +154,11 @@ function handlePickWinner(
   };
 
   // Propagate winner into next-round matchup
-  const nextMatchup = findNextMatchup(matchups, current);
-  if (nextMatchup) {
-    const side = slotSide(current.position);
-    matchups[nextMatchup.id] = {
-      ...matchups[nextMatchup.id],
-      [side]: winnerId,
+  const next = findNextMatchup(matchups, current);
+  if (next) {
+    matchups[next.matchup.id] = {
+      ...matchups[next.matchup.id],
+      [next.slot]: winnerId,
     };
   }
 
@@ -315,7 +327,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'SET_BRACKET':
-      return { ...state, bracket: action.payload };
+      return { ...state, bracket: action.payload, pickHistory: [], undoneActions: [], narratives: {} };
 
     case 'SET_SIMULATION_RESULTS':
       return { ...state, simulationResults: action.payload };
@@ -379,17 +391,34 @@ function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'RESET_BRACKET': {
+      // Identify First Four team IDs so we can null out their R64 feeder slots
+      const firstFourTeamIds = new Set<string>();
+      for (const m of Object.values(state.bracket.matchups)) {
+        if (m.round === 'First Four') {
+          if (m.teamAId) firstFourTeamIds.add(m.teamAId);
+          if (m.teamBId) firstFourTeamIds.add(m.teamBId);
+        }
+      }
+
       const resetMatchups: Record<string, Matchup> = {};
       for (const [key, m] of Object.entries(state.bracket.matchups)) {
+        let teamAId = roundIndex(m.round) <= 1 ? m.teamAId : null;
+        let teamBId = roundIndex(m.round) <= 1 ? m.teamBId : null;
+
+        // For R64 matchups fed by First Four, null out the FF-winner slot
+        if (m.round === 'R64') {
+          if (teamAId && firstFourTeamIds.has(teamAId)) teamAId = null;
+          if (teamBId && firstFourTeamIds.has(teamBId)) teamBId = null;
+        }
+
         resetMatchups[key] = {
           ...m,
           winnerId: null,
           locked: false,
           isUpset: false,
           confidence: 0,
-          // Only keep teams for R64 / First Four; later rounds get cleared
-          teamAId: roundIndex(m.round) <= 1 ? m.teamAId : null,
-          teamBId: roundIndex(m.round) <= 1 ? m.teamBId : null,
+          teamAId,
+          teamBId,
         };
       }
       return {

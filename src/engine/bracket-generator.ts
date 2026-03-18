@@ -575,15 +575,22 @@ function cascadePostProcessing(
       const teamB = teamsById[newTeamBId];
       if (!teamA || !teamB) continue;
 
-      // Re-pick winner
+      // Re-pick winner — apply champion filter for FF/Championship
       const roundIdx = ROUND_ORDER.indexOf(round);
+      let adjCprA = cprMap[teamA.id];
+      let adjCprB = cprMap[teamB.id];
+      if ((round === 'Final Four' || round === 'Championship') && advancedSettings?.championFilter) {
+        if (!computeChampionViability(teamA, advancedSettings)) adjCprA -= 0.1;
+        if (!computeChampionViability(teamB, advancedSettings)) adjCprB -= 0.1;
+      }
+
       const probA = computeWinProbability(
-        teamA, teamB, cprMap[teamA.id], cprMap[teamB.id],
+        teamA, teamB, adjCprA, adjCprB,
         round, historicalTrends, advancedSettings
       );
 
       const result = pickWinner(
-        { teamA, teamB, probA, cprA: cprMap[teamA.id], cprB: cprMap[teamB.id] },
+        { teamA, teamB, probA, cprA: adjCprA, cprB: adjCprB },
         roundIdx, upsetAppetite, scoringSystem, simulationResults, round
       );
 

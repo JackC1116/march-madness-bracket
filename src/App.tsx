@@ -383,7 +383,7 @@ function BracketApp() {
 
         {/* Left Sidebar */}
         <aside className={`
-          fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] transform transition-transform duration-200 lg:relative lg:translate-x-0 lg:w-80 xl:w-96
+          fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] transform transition-transform duration-200 lg:relative lg:inset-auto lg:z-auto lg:max-w-none lg:translate-x-0 lg:w-80 xl:w-96
           ${mobileLeftOpen ? 'translate-x-0' : '-translate-x-full'}
           border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto shrink-0
         `}>
@@ -673,7 +673,7 @@ function BracketApp() {
                 bracket={bracket}
                 teams={teamsMap}
                 onPickWinner={pickWinner}
-                onSelectMatchup={setSelectedMatchupId}
+                onSelectMatchup={(id) => { setMobileLeftOpen(false); setSelectedMatchupId(id); }}
                 selectedMatchupId={selectedMatchupId}
               />
             </div>
@@ -773,7 +773,7 @@ function BracketApp() {
           )}
           <button
             onClick={handleGenerateBracket}
-            disabled={isSimulating}
+            disabled={!simulationResults || isSimulating}
             className="w-12 h-12 rounded-full bg-[#00274C] text-white shadow-lg flex items-center justify-center disabled:opacity-50 transition"
             title="Generate Bracket"
           >
@@ -783,7 +783,7 @@ function BracketApp() {
             </svg>
           </button>
           <button
-            onClick={() => setMobileLeftOpen(true)}
+            onClick={() => { setSelectedMatchupId(null); setMobileLeftOpen(true); }}
             className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center transition"
             title="Controls"
           >

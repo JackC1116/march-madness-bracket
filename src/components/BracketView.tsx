@@ -126,9 +126,9 @@ interface TeamRowProps {
 function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRowProps) {
   if (!team) {
     return (
-      <div className="flex items-center gap-1 px-1.5 py-1 sm:py-[3px] text-gray-300 dark:text-gray-500 h-[24px] sm:h-[18px]">
-        <span className="text-[10px] sm:text-[9px] w-3 text-center">--</span>
-        <span className="text-[11px] sm:text-[10px] italic flex-1 truncate">TBD</span>
+      <div className="flex items-center gap-1 px-1.5 py-[3px] text-gray-300 dark:text-gray-500 h-[18px]">
+        <span className="text-[9px] w-3 text-center">--</span>
+        <span className="text-[10px] italic flex-1 truncate">TBD</span>
       </div>
     );
   }
@@ -137,15 +137,15 @@ function TeamRow({ team, winProb, isWinner, isLocked, isUpset, onClick }: TeamRo
     <div
       onClick={onClick}
       className={`
-        flex items-center gap-1 px-1.5 py-1 sm:py-[3px] transition-colors h-[24px] sm:h-[18px]
+        flex items-center gap-1 px-1.5 py-[3px] transition-colors h-[18px]
         ${onClick ? 'cursor-pointer' : ''}
         ${isWinner ? 'bg-emerald-50 dark:bg-emerald-900/30 font-semibold' : onClick ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : ''}
       `}
     >
-      <span className={`text-[10px] sm:text-[9px] w-3.5 text-center font-bold rounded-sm px-0.5 ${getSeedColorClasses(team.seed)}`}>
+      <span className={`text-[9px] w-3.5 text-center font-bold rounded-sm px-0.5 ${getSeedColorClasses(team.seed)}`}>
         {team.seed}
       </span>
-      <span className={`text-[11px] sm:text-[10px] flex-1 truncate ${isWinner ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'}`}>
+      <span className={`text-[10px] flex-1 truncate ${isWinner ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'}`}>
         {team.name}
       </span>
       {isWinner && (
@@ -432,21 +432,23 @@ export default function BracketView({
   // Collect First Four games from all regions
   const firstFourGames = allMatchups.filter((m) => m.round === 'First Four');
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const bracketRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(true);
 
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const handleScroll = () => {
-      if (showScrollHint) setShowScrollHint(false);
-    };
-    container.addEventListener('scroll', handleScroll, { once: true });
-    return () => container.removeEventListener('scroll', handleScroll);
+    if (!showScrollHint) return;
+    // The scrollable ancestor is <main> in App.tsx, not this div
+    const el = bracketRef.current;
+    if (!el) return;
+    const scrollParent = el.closest('main') ?? el.parentElement;
+    if (!scrollParent) return;
+    const dismiss = () => setShowScrollHint(false);
+    scrollParent.addEventListener('scroll', dismiss, { once: true });
+    return () => scrollParent.removeEventListener('scroll', dismiss);
   }, [showScrollHint]);
 
   return (
-    <div className="w-full relative" ref={scrollContainerRef}>
+    <div className="w-full relative" ref={bracketRef}>
       {/* Mobile scroll hint */}
       {showScrollHint && (
         <div className="scroll-hint lg:hidden absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-gray-800/70 text-white text-xs rounded-full pointer-events-none">
